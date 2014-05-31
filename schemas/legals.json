@@ -1,16 +1,43 @@
-[
-    {"Document_ID", "type": "string"},
-    {"Record_type", "type": "string"},
-    {"Borough", "type": "string"},
-    {"Block", "type": "string"},
-    {"Lot", "type": "string"},
-    {"Easement", "type": "string"},
-    {"Partial_lot", "type": "string"},
-    {"Air_rights", "type": "string"},
-    {"Subterranean_rights", "type": "string"},
-    {"Property_type", "type": "string"},
-    {"Street_number", "type": "string"},
-    {"Street_Name", "type": "string"},
-    {"Addr_unit", "type": "string"},
-    {"Good_through_date", "type": "string"}
-]
+[{
+    "name": "Document_ID",
+    "type": "string"
+}, {
+    "name": "Record_type",
+    "type": "string"
+}, {
+    "name": "Borough",
+    "type": "integer"
+}, {
+    "name": "Block",
+    "type": "integer"
+}, {
+    "name": "Lot",
+    "type": "integer"
+}, {
+    "name": "Easement",
+    "type": "string"
+}, {
+    "name": "Partial_lot",
+    "type": "string"
+}, {
+    "name": "Air_rights",
+    "type": "string"
+}, {
+    "name": "Subterranean_rights",
+    "type": "string"
+}, {
+    "name": "Property_type",
+    "type": "string"
+}, {
+    "name": "Street_number",
+    "type": "string"
+}, {
+    "name": "Street_Name",
+    "type": "string"
+}, {
+    "name": "Addr_unit",
+    "type": "string"
+}, {
+    "name": "Good_through_date",
+    "type": "string"
+}]

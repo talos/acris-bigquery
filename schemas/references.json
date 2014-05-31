@@ -1,11 +1,28 @@
-[
-    {"name": "Document_ID", "type": "string"},
-    {"name": "Record_type", "type": "string"},
-    {"name": "CRFN", "type": "string"},
-    {"name": "Doc_id_ref", "type": "string"},
-    {"name": "Reel_yr", "type": "string"},
-    {"name": "Reel_borough", "type": "string"},
-    {"name": "Reel_nbr", "type": "string"},
-    {"name": "Reel_pg", "type": "string"},
-    {"name": "Good_through_date", "type": "string"}
-]
+[{
+    "name": "Document_ID",
+    "type": "string"
+}, {
+    "name": "Record_type",
+    "type": "string"
+}, {
+    "name": "CRFN",
+    "type": "integer"
+}, {
+    "name": "Doc_id_ref",
+    "type": "string"
+}, {
+    "name": "Reel_yr",
+    "type": "integer"
+}, {
+    "name": "Reel_borough",
+    "type": "integer"
+}, {
+    "name": "Reel_nbr",
+    "type": "integer"
+}, {
+    "name": "Reel_pg",
+    "type": "integer"
+}, {
+    "name": "Good_through_date",
+    "type": "string"
+}]

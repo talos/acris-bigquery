@@ -6,10 +6,10 @@
     "type":  "string"
 }, {
     "name": "CRFN",
-    "type": "string"
+    "type": "integer"
 }, {
     "name": "Recorded_borough",
-    "type": "string"
+    "type": "integer"
 }, {
     "name": "Doc_type",
     "type": "string"
@@ -18,7 +18,7 @@
     "type": "string"
 }, {
     "name": "Document_amt",
-    "type": "string"
+    "type": "integer"
 }, {
     "name": "Recorded_datetime",
     "type": "string"
@@ -27,16 +27,16 @@
     "type": "string"
 }, {
     "name": "Reel_yr",
-    "type": "string"
+    "type": "integer"
 }, {
     "name": "Reel_nbr",
-    "type": "string"
+    "type": "integer"
 }, {
     "name": "Reel_pg",
-    "type": "string"
+    "type": "integer"
 }, {
     "name": "Percent_trans",
-    "type": "string"
+    "type": "integer"
 }, {
     "name": "Good_through_date",
     "type": "string"

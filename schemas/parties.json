@@ -1,13 +1,34 @@
-[
-    {"Document_ID", "type": "string"},
-    {"Record_type", "type": "string"},
-    {"Party_type", "type": "string"},
-    {"Name", "type": "string"},
-    {"Addr1", "type": "string"},
-    {"Addr2", "type": "string"},
-    {"Country", "type": "string"},
-    {"City", "type": "string"},
-    {"State", "type": "string"},
-    {"Zip", "type": "string"},
-    {"Good_through_date", "type": "string"}
-]
+[{
+    "name": "Document_ID",
+    "type": "string"
+}, {
+    "name": "Record_type",
+    "type": "string"
+}, {
+    "name": "Party_type",
+    "type": "integer"
+}, {
+    "name": "Name",
+    "type": "string"
+}, {
+    "name": "Addr1",
+    "type": "string"
+}, {
+    "name":"Addr2",
+    "type": "string"
+}, {
+    "name": "Country",
+    "type": "string"
+}, {
+    "name": "City",
+    "type": "string"
+}, {
+    "name": "State",
+    "type": "string"
+}, {
+    "name": "Zip",
+    "type": "string"
+}, {
+    "name": "Good_through_date",
+    "type": "string"
+}]
