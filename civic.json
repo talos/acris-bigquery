@@ -1,0 +1,11 @@
+{
+    "status": "Ideation",
+    "bornAt": "CityCamp",
+    "geography": "NYC",
+    "type": "Dataset",
+    "categories": [
+        {"category": "Financial"},
+        {"category": "Open Data"},
+        {"category": "Ownership"}
+    ]
+}
