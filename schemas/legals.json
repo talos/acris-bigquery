@@ -1,0 +1,16 @@
+[
+    {"Document_ID", "type": "string"},
+    {"Record_type", "type": "string"},
+    {"Borough", "type": "string"},
+    {"Block", "type": "string"},
+    {"Lot", "type": "string"},
+    {"Easement", "type": "string"},
+    {"Partial_lot", "type": "string"},
+    {"Air_rights", "type": "string"},
+    {"Subterranean_rights", "type": "string"},
+    {"Property_type", "type": "string"},
+    {"Street_number", "type": "string"},
+    {"Street_Name", "type": "string"},
+    {"Addr_unit", "type": "string"},
+    {"Good_through_date", "type": "string"}
+]

@@ -1,0 +1,43 @@
+[{
+    "name": "Document_ID",
+    "type": "string"
+}, {
+    "name": "Record_type",
+    "type":  "string"
+}, {
+    "name": "CRFN",
+    "type": "string"
+}, {
+    "name": "Recorded_borough",
+    "type": "string"
+}, {
+    "name": "Doc_type",
+    "type": "string"
+}, {
+    "name": "Document_Date",
+    "type": "string"
+}, {
+    "name": "Document_amt",
+    "type": "string"
+}, {
+    "name": "Recorded_datetime",
+    "type": "string"
+}, {
+    "name": "Modified_date",
+    "type": "string"
+}, {
+    "name": "Reel_yr",
+    "type": "string"
+}, {
+    "name": "Reel_nbr",
+    "type": "string"
+}, {
+    "name": "Reel_pg",
+    "type": "string"
+}, {
+    "name": "Percent_trans",
+    "type": "string"
+}, {
+    "name": "Good_through_date",
+    "type": "string"
+}]

@@ -1,0 +1,13 @@
+[
+    {"Document_ID", "type": "string"},
+    {"Record_type", "type": "string"},
+    {"Party_type", "type": "string"},
+    {"Name", "type": "string"},
+    {"Addr1", "type": "string"},
+    {"Addr2", "type": "string"},
+    {"Country", "type": "string"},
+    {"City", "type": "string"},
+    {"State", "type": "string"},
+    {"Zip", "type": "string"},
+    {"Good_through_date", "type": "string"}
+]

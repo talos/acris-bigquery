@@ -1,0 +1,11 @@
+[
+    {"name": "Document_ID", "type": "string"},
+    {"name": "Record_type", "type": "string"},
+    {"name": "CRFN", "type": "string"},
+    {"name": "Doc_id_ref", "type": "string"},
+    {"name": "Reel_yr", "type": "string"},
+    {"name": "Reel_borough", "type": "string"},
+    {"name": "Reel_nbr", "type": "string"},
+    {"name": "Reel_pg", "type": "string"},
+    {"name": "Good_through_date", "type": "string"}
+]
