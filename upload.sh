@@ -13,6 +13,16 @@ for schema in real personal code; do
     done
 done
 
-echo "Waiting for bq..."
-bq wait
 
+# Wait for uploads to complete
+while :
+do
+    jobs=$(bq ls -j | grep '\(PENDING\|RUNNING\)' | wc -l | xargs)
+    if [ $jobs -eq "0" ]; then
+        echo "Finished uploading!"
+        break
+    else
+        sleep 5
+        echo "Waiting for $jobs uploads to complete..."
+    fi
+done
