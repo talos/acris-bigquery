@@ -25,7 +25,7 @@ declare -a PERSONAL=(sv7x-dduq uqqa-hym2 nbbg-wtuz 6y3e-jcrc fuzi-5ks9)
 # $1: real/personal/code, $2: tablename, $3: tableid
 function download {
     mkdir -p $LOGS/$1 && mkdir -p $OUTPUT/$1
-    if [ ! -e $OUTPUT/$1/$2.csv ]; then
+    if [ ! -e $OUTPUT/$1/$2.csv.gz ]; then
         echo "Downloading $1/$2.csv ($3)"
         # Download via wget, filter '10/30/1974' style dates to
         # '1974-10-30 00:00:00' via sed.  Filtering allows import as timestamp.

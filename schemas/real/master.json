@@ -10,7 +10,7 @@
     "mode": "required"
 }, {
     "name": "crfn",
-    "type": "integer",
+    "type": "string",
     "description": "City Register File Number, begins 2003",
     "mode": "nullable"
 }, {

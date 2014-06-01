@@ -20,7 +20,7 @@
     "mode": "nullable"
 }, {
     "name": "reference_by_file_nbr",
-    "type": "integer",
+    "type": "string",
     "description": "Part of the Reel ID of the cross-referenced doc, if it has one.",
     "mode": "nullable"
 }, {

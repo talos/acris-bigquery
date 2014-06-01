@@ -15,10 +15,12 @@
 }, {
     "name": "remark_text_line",
     "type": "string",
-    "mode": "required"
+    "description": "This is sometimes empty.",
+    "mode": "nullable"
 }, {
     "name": "good_through_date",
     "type": "timestamp",
     "description": "Join with master using this plus Document ID.",
     "mode": "required"
 }]
+

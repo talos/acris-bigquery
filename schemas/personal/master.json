@@ -37,7 +37,7 @@
     "name": "collateral",
     "type": "string",
     "description": "Cross-referenced with acris.code_ucc_collateral",
-    "mode": "required"
+    "mode": "nullable"
 }, {
     "name": "slid_num",
     "type": "string",

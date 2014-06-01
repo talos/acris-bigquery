@@ -16,7 +16,7 @@
 }, {
     "name": "name",
     "type": "string",
-    "mode": "required"
+    "mode": "nullable"
 }, {
     "name": "address_1",
     "type": "string",
