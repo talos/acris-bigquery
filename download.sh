@@ -36,11 +36,18 @@ function download {
         # Use sed to filter '10/30/1974' style dates to '1974-10-30 00:00:00'
         # via sed.  Filtering allows import as timestamp.
         #
-        # Use grep to allow only records that start with a number or uppercase
-        # letter through; a quoted beginning means corrupt data (this happens.)
+        # Use grep to:
+        #
+        # * Exclude entries with the date `0200-02-29`, which happens in
+        #   real_master
+        #
+        # * Allow only records that start with a number or uppercase
+        #   letter through; a quoted beginning means corrupt data (this
+        #   happens in personal_references.)
         wget -o $LOGS/$1/$2.log -O - \
              https://data.cityofnewyork.us/api/views/$3/rows.csv?accessType=DOWNLOAD \
              | sed -r 's_,([0-9]{2})/([0-9]{2})/([0-9]{4})_,\3-\1-\2 00:00:00_g' \
+             | grep -v '0200-02-29' \
              | grep '^[0-9A-Z]' > $OUTPUT/$1/$2.csv &
     fi
 }

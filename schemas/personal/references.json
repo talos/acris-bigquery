@@ -10,7 +10,7 @@
     "mode": "required"
 }, {
     "name": "reference_by_crfn",
-    "type": "integer",
+    "type": "string",
     "description": "The CRFN of the cross-referenced doc, if it has one.",
     "mode": "nullable"
 }, {

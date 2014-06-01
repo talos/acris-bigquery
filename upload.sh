@@ -7,7 +7,10 @@ for schema in real personal code; do
         base=$(basename $path .csv.gz)
         output=acris.${schema}_${base}
 
+        # the `bq show` prevents us from overwriting an existing set -- not
+        # permanent, as eventually this will be desired.
         echo "Uploading $path to $output..."
+        bq show $output || \
         bq --nosync load --skip_leading_rows 1 --replace $output \
             $path schemas/$schema/$base.json
     done
@@ -26,3 +29,6 @@ do
         echo "Waiting for $jobs uploads to complete..."
     fi
 done
+
+
+# Run the 
