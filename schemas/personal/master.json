@@ -6,7 +6,7 @@
 }, {
     "name": "record_type",
     "type": "string",
-    "description": "Always M (Master)",
+    "description": "Always A",
     "mode": "required"
 }, {
     "name": "crfn",
@@ -24,11 +24,6 @@
     "description": "Document type cross-referenced with acris.code_document_control",
     "mode": "required"
 }, {
-    "name": "doc_date",
-    "type": "timestamp",
-    "description": "The date when the transaction described by this document actually occurred; recorded regularly 2003 onwards.",
-    "mode": "nullable"
-}, {,
     "name": "doc_amount",
     "type": "float",
     "description": "The recorded amount of the document.  Recorded for mortgages from 1982 onwards, and for deeds from 2003 onwards.",
@@ -38,6 +33,23 @@
     "type": "timestamp",
     "description": "The date when this document was recorded and filed; may be considerably later than Document_Date, but is more consistently recorded.",
     "mode": "required"
+}, {
+    "name": "collateral",
+    "type": "string",
+    "description": "Cross-referenced with acris.code_ucc_collateral",
+    "mode": "required"
+}, {
+    "name": "slid_num",
+    "type": "string",
+    "mode": "nullable"
+}, {
+    "name": "assessment_date",
+    "type": "timestamp",
+    "mode": "nullable"
+}, {
+    "name": "rptt_num",
+    "type": "string",
+    "mode": "nullable"
 }, {
     "name": "modified_date",
     "type": "timestamp",
@@ -58,8 +70,8 @@
     "description": "Part of Reel ID system, for documents without CRFN.",
     "mode": "nullable"
 }, {
-    "name": "percent_transferred",
-    "type": "integer",
+    "name": "file_number",
+    "type": "string",
     "mode": "nullable"
 }, {
     "name": "good_through_date",

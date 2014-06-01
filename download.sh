@@ -38,11 +38,11 @@ function download {
 }
 
 # iterate through all table types and download
-#for i in {0..4}; do
-#    name=${TABLES[$i]}
-#    download real $name ${REAL[$i]}
-#    download personal $name ${PERSONAL[$i]}
-#done
+for i in {0..4}; do
+    name=${TABLES[$i]}
+    download real $name ${REAL[$i]}
+    download personal $name ${PERSONAL[$i]}
+done
 
 # download codes
 download code document_control 7isb-wh4c

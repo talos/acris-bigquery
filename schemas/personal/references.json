@@ -19,22 +19,7 @@
     "description": "The Document ID of the cross-referenced doc.",
     "mode": "nullable"
 }, {
-    "name": "reference_by_reel_year",
-    "type": "integer",
-    "description": "Part of the Reel ID of the cross-referenced doc, if it has one.",
-    "mode": "nullable"
-}, {
-    "name": "reference_by_reel_borough",
-    "type": "integer",
-    "description": "Part of the Reel ID of the cross-referenced doc, if it has one.",
-    "mode": "nullable"
-}, {
-    "name": "reference_by_reel_nbr",
-    "type": "integer",
-    "description": "Part of the Reel ID of the cross-referenced doc, if it has one.",
-    "mode": "nullable"
-}, {
-    "name": "reference_by_reel_page",
+    "name": "reference_by_file_nbr",
     "type": "integer",
     "description": "Part of the Reel ID of the cross-referenced doc, if it has one.",
     "mode": "nullable"
