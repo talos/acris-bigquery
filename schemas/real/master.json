@@ -28,7 +28,7 @@
     "type": "timestamp",
     "description": "The date when the transaction described by this document actually occurred; recorded regularly 2003 onwards.",
     "mode": "nullable"
-}, {,
+}, {
     "name": "doc_amount",
     "type": "float",
     "description": "The recorded amount of the document.  Recorded for mortgages from 1982 onwards, and for deeds from 2003 onwards.",

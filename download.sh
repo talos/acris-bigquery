@@ -27,11 +27,11 @@ function download {
     mkdir -p $LOGS/$1 && mkdir -p $OUTPUT/$1
     if [ ! -e $OUTPUT/$1/$2.csv ]; then
         echo "Downloading $1/$2.csv ($3)"
-        # Download via wget, filter '10/30/1974' style dates to '1974-10-30'
-        # via sed
+        # Download via wget, filter '10/30/1974' style dates to
+        # '1974-10-30 00:00:00' via sed.  Filtering allows import as timestamp.
         wget -o $LOGS/$1/$2.log -O - \
              https://data.cityofnewyork.us/api/views/$3/rows.csv?accessType=DOWNLOAD \
-             | sed -r 's:,([0-9]{2})/([0-9]{2})/([0-9]{4}):,\3-\1-\2:g' > $OUTPUT/$1/$2.csv &
+             | sed -r 's_,([0-9]{2})/([0-9]{2})/([0-9]{4})_,\3-\1-\2 00:00:00_g' > $OUTPUT/$1/$2.csv &
     else
         echo "Already downloaded $1/$2, skipping..."
     fi
@@ -54,7 +54,7 @@ download code country j2iz-mwzu # This is switched with `ucc_collateral` on Socr
 # Wait for downloads to complete
 while :
 do
-    jobs=$(jobs | wc -l | xargs)
+    jobs=$(jobs | grep wget | wc -l | xargs)
     if [ $jobs -eq "0" ]; then
         echo "Finished downloading!"
         break
@@ -63,3 +63,6 @@ do
         echo "Waiting for $jobs downloads to complete..."
     fi
 done
+
+# gzip files for storage/upload
+gzip -9 $OUTPUT/**/*.csv
