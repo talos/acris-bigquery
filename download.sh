@@ -25,15 +25,23 @@ declare -a PERSONAL=(sv7x-dduq uqqa-hym2 nbbg-wtuz 6y3e-jcrc fuzi-5ks9)
 # $1: real/personal/code, $2: tablename, $3: tableid
 function download {
     mkdir -p $LOGS/$1 && mkdir -p $OUTPUT/$1
-    if [ ! -e $OUTPUT/$1/$2.csv.gz ]; then
+    if [ -e $OUTPUT/$1/$2.csv.gz ]; then
+        echo "Already downloaded $1/$2, skipping..."
+    elif [ -e $OUTPUT/$1/$2.csv ]; then
+        echo "Currently downloading $1/$2, skipping..."
+    else
         echo "Downloading $1/$2.csv ($3)"
-        # Download via wget, filter '10/30/1974' style dates to
-        # '1974-10-30 00:00:00' via sed.  Filtering allows import as timestamp.
+        # Download via wget.
+        #
+        # Use sed to filter '10/30/1974' style dates to '1974-10-30 00:00:00'
+        # via sed.  Filtering allows import as timestamp.
+        #
+        # Use grep to allow only records that start with a number or uppercase
+        # letter through; a quoted beginning means corrupt data (this happens.)
         wget -o $LOGS/$1/$2.log -O - \
              https://data.cityofnewyork.us/api/views/$3/rows.csv?accessType=DOWNLOAD \
-             | sed -r 's_,([0-9]{2})/([0-9]{2})/([0-9]{4})_,\3-\1-\2 00:00:00_g' > $OUTPUT/$1/$2.csv &
-    else
-        echo "Already downloaded $1/$2, skipping..."
+             | sed -r 's_,([0-9]{2})/([0-9]{2})/([0-9]{4})_,\3-\1-\2 00:00:00_g' \
+             | grep '^[0-9A-Z]' > $OUTPUT/$1/$2.csv &
     fi
 }
 

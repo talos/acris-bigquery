@@ -59,7 +59,7 @@
     "mode": "nullable"
 }, {
     "name": "percent_transferred",
-    "type": "integer",
+    "type": "float",
     "mode": "nullable"
 }, {
     "name": "good_through_date",
