@@ -5,7 +5,7 @@
 }, {
     "name": "Record_type",
     "type": "string",
-    "description": "Whether this document is a mortgage, deed, etc."
+    "description": "Always M (Master)"
 }, {
     "name": "Borough",
     "type": "integer",

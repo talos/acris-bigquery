@@ -1,0 +1,19 @@
+[{
+    "name": "Document_ID",
+    "type": "string",
+    "description": "Reference to master table.  Join using this and Good_through_date"
+}, {
+    "name": "Record_type",
+    "type": "string",
+    "description": "Always R (Remarks)"
+}, {
+    "name": "Remark_line_nbr",
+    "type": "string"
+}, {
+    "name": "Remark_text_line",
+    "type": "string"
+}, {
+    "name": "Good_through_date",
+    "type": "timestamp",
+    "description": "Join with master using this plus Document ID."
+}]

@@ -1,28 +1,37 @@
 [{
     "name": "Document_ID",
-    "type": "string"
+    "type": "string",
+    "description": "Reference to master table.  Join using this and Good_through_date"
 }, {
     "name": "Record_type",
-    "type": "string"
+    "type": "string",
+    "description": "Always X (Cross-reference)"
 }, {
     "name": "CRFN",
-    "type": "integer"
+    "type": "integer",
+    "description": "The CRFN of the cross-referenced doc, if it has one."
 }, {
     "name": "Doc_id_ref",
-    "type": "string"
+    "type": "string",
+    "description": "The Document ID of the cross-referenced doc."
 }, {
     "name": "Reel_yr",
-    "type": "integer"
+    "type": "integer",
+    "description": "Part of the Reel ID of the cross-referenced doc, if it has one."
 }, {
     "name": "Reel_borough",
-    "type": "integer"
+    "type": "integer",
+    "description": "Part of the Reel ID of the cross-referenced doc, if it has one."
 }, {
     "name": "Reel_nbr",
-    "type": "integer"
+    "type": "integer",
+    "description": "Part of the Reel ID of the cross-referenced doc, if it has one."
 }, {
     "name": "Reel_pg",
-    "type": "integer"
+    "type": "integer",
+    "description": "Part of the Reel ID of the cross-referenced doc, if it has one."
 }, {
     "name": "Good_through_date",
-    "type": "string"
+    "type": "timestamp",
+    "description": "Join with master using this plus Document ID."
 }]

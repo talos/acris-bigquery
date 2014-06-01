@@ -3,20 +3,26 @@
     "type": "string"
 }, {
     "name": "Doc_type",
-    "type": "string"
+    "type": "string",
+    "description": "References to acris.real_master"
 }, {
     "name": "Doc_type_description",
-    "type": "string"
+    "type": "string",
+    "description": "Human=readable description of the sort of document type"
 }, {
     "name": "Class_code_description",
-    "type": "string"
+    "type": "string",
+    "description": "A grouping for this document type"
 }, {
     "name": "Party1_type",
-    "type": "string"
+    "type": "string",
+    "description": "The role of Party1 in the transaction."
 }, {
     "name": "Party2_type",
-    "type": "string"
+    "type": "string",
+    "description": "The role of Party2 in the transaction."
 }, {
     "name": "Party3_type",
-    "type": "string"
+    "type": "string",
+    "description": "The role of Party3 in the transaction, mostly NULL"
 }]

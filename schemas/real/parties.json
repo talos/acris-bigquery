@@ -1,12 +1,15 @@
 [{
     "name": "Document_ID",
-    "type": "string"
+    "type": "string",
+    "description": "Reference to master table.  Join using this and Good_through_date"
 }, {
     "name": "Record_type",
-    "type": "string"
+    "type": "string",
+    "description": "Always P (Party)"
 }, {
     "name": "Party_type",
-    "type": "integer"
+    "type": "integer",
+    "description": "Role number for this party, can be joined to acris.code_document_control"
 }, {
     "name": "Name",
     "type": "string"
@@ -30,5 +33,6 @@
     "type": "string"
 }, {
     "name": "Good_through_date",
-    "type": "string"
+    "type": "timestamp",
+    "description": "Join with master using this plus Document ID."
 }]

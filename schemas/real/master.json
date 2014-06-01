@@ -1,43 +1,55 @@
 [{
     "name": "Document_ID",
-    "type": "string"
+    "type": "string",
+    "description": "Unique key when combined with Good_through_date"
 }, {
     "name": "Record_type",
-    "type":  "string"
+    "type": "string",
+    "description": "Always M (Master)"
 }, {
     "name": "CRFN",
-    "type": "integer"
+    "type": "integer",
+    "description": "City Register File Number, begins 2003"
 }, {
     "name": "Recorded_borough",
-    "type": "integer"
+    "type": "integer",
+    "description": "Borough that this document was recorded in."
 }, {
     "name": "Doc_type",
-    "type": "string"
+    "type": "string",
+    "description": "Whether this document is a mortgage, deed, etc."
 }, {
     "name": "Document_Date",
-    "type": "string"
+    "type": "timestamp",
+    "description": "The date when the transaction described by this document actually occurred; recorded regularly 2003 onwards."
 }, {
     "name": "Document_amt",
-    "type": "float"
+    "type": "float",
+    "description": "The recorded amount of the document.  Recorded for mortgages from 1982 onwards, and for deeds from 2003 onwards."
 }, {
     "name": "Recorded_datetime",
-    "type": "string"
+    "type": "timestamp",
+    "description": "The date when this document was actually recorded; may be considerably later than Document_Date, but is more consistently recorded."
 }, {
     "name": "Modified_date",
-    "type": "string"
+    "type": "timestamp"
 }, {
     "name": "Reel_yr",
-    "type": "integer"
+    "type": "integer",
+    "description": "Part of Reel ID system, for documents without CRFN."
 }, {
     "name": "Reel_nbr",
-    "type": "integer"
+    "type": "integer",
+    "description": "Part of Reel ID system, for documents without CRFN."
 }, {
     "name": "Reel_pg",
-    "type": "integer"
+    "type": "integer",
+    "description": "Part of Reel ID system, for documents without CRFN."
 }, {
     "name": "Percent_trans",
     "type": "integer"
 }, {
     "name": "Good_through_date",
-    "type": "string"
+    "type": "timestamp",
+    "description": "Unique key when combined with Document_id"
 }]
