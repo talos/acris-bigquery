@@ -1,18 +1,23 @@
 [{
     "name": "Document_ID",
-    "type": "string"
+    "type": "string",
+    "description": "Reference to master table.  Join using this and Good_through_date"
 }, {
     "name": "Record_type",
-    "type": "string"
+    "type": "string",
+    "description": "Whether this document is a mortgage, deed, etc."
 }, {
     "name": "Borough",
-    "type": "integer"
+    "type": "integer",
+    "description": "1 is Manhattan, 2 is Bronx, 3 is Brooklyn, 4 is Queens.  Staten Island is not included"
 }, {
     "name": "Block",
-    "type": "integer"
+    "type": "integer",
+    "description": "Tax block, part of BBL tax ID"
 }, {
     "name": "Lot",
-    "type": "integer"
+    "type": "integer",
+    "description": "Tax block, part of BBL tax ID"
 }, {
     "name": "Easement",
     "type": "string"
@@ -39,5 +44,6 @@
     "type": "string"
 }, {
     "name": "Good_through_date",
-    "type": "string"
+    "type": "timestamp",
+    "description": "Join with master using this plus Document ID."
 }]

@@ -1,0 +1,10 @@
+[{
+    "name": "Record_type",
+    "type": "string"
+}, {
+    "name": "State_code",
+    "type": "string"
+}, {
+    "name": "Description",
+    "type": "string"
+}]

@@ -1,0 +1,22 @@
+[{
+    "name": "Record_type",
+    "type": "string"
+}, {
+    "name": "Doc_type",
+    "type": "string"
+}, {
+    "name": "Doc_type_description",
+    "type": "string"
+}, {
+    "name": "Class_code_description",
+    "type": "string"
+}, {
+    "name": "Party1_type",
+    "type": "string"
+}, {
+    "name": "Party2_type",
+    "type": "string"
+}, {
+    "name": "Party3_type",
+    "type": "string"
+}]
