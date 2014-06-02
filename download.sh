@@ -41,6 +41,9 @@ function download {
         # * Exclude entries with the date `0200-02-29`, which happens in
         #   real_master
         #
+        # * Allow only records that don't have a double quote in them -- these
+        #   are also bad
+        #
         # * Allow only records that start with a number or uppercase
         #   letter through; a quoted beginning means corrupt data (this
         #   happens in personal_references.)
@@ -48,6 +51,7 @@ function download {
              https://data.cityofnewyork.us/api/views/$3/rows.csv?accessType=DOWNLOAD \
              | sed -r 's_,([0-9]{2})/([0-9]{2})/([0-9]{4})_,\3-\1-\2 00:00:00_g' \
              | grep -v '0200-02-29' \
+             | grep -v '""' \
              | grep '^[0-9A-Z]' > $OUTPUT/$1/$2.csv &
     fi
 }
@@ -66,6 +70,19 @@ download code property_types 94g4-w6xz
 download code states 5c9e-33xj
 download code country j2iz-mwzu # This is switched with `ucc_collateral` on Socrata
 
+
+### Download MapPLUTO data
+mkdir -p $LOGS/pluto $OUTPUT/pluto
+for boro in bx bk mn qn; do
+    if [ -e $OUTPUT/pluto/$boro.zip ]; then
+        echo "Already downloaded MapPLUTO for $boro"
+    else
+        echo "Downloading MapPLUTO $boro..."
+        wget -o $LOGS/pluto/$boro.log -O $OUTPUT/pluto/$boro.zip \
+            "http://www.nyc.gov/html/dcp/download/bytes/${boro}_mappluto13v2.zip" &
+    fi
+done
+
 # Wait for downloads to complete
 while :
 do
@@ -74,10 +91,22 @@ do
         echo "Finished downloading!"
         break
     else
-        sleep 5
         echo "Waiting for $jobs downloads to complete..."
+        sleep 5
     fi
 done
+
+
+### Process MAPPluto data
+for archive in $OUTPUT/pluto/*.zip; do
+    base=$(basename $archive .zip)
+    unzip -d $OUTPUT/pluto $archive
+done
+
+for borough in Bronx Brooklyn Manhattan Queens; do
+    ogr2ogr -f csv output/pluto/$borough.csv output/pluto/$borough &
+done
+
 
 # gzip files for storage/upload
 gzip -9 $OUTPUT/**/*.csv

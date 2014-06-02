@@ -10,7 +10,7 @@ for schema in real personal code; do
         # the `bq show` prevents us from overwriting an existing set -- not
         # permanent, as eventually this will be desired.
         echo "Uploading $path to $output..."
-        bq show $output || \
+        bq show $output > /dev/null && echo "Already uploaded $output" || \
         bq --nosync load --skip_leading_rows 1 --replace $output \
             $path schemas/$schema/$base.json
     done
@@ -25,10 +25,7 @@ do
         echo "Finished uploading!"
         break
     else
-        sleep 5
         echo "Waiting for $jobs uploads to complete..."
+        sleep 5
     fi
 done
-
-
-# Run the 
