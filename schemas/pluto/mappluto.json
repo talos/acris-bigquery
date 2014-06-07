@@ -1,0 +1,259 @@
+[{
+    "name": "Borough",
+    "type": "string",
+    "mode": "required"
+}, {
+    "name": "Block",
+    "type": "integer",
+    "mode": "required"
+}, {
+    "name": "Lot",
+    "type": "integer",
+    "mode": "required"
+}, {
+    "name": "CD",
+    "type": "integer"
+}, {
+    "name": "CT2010",
+    "type": "float"
+}, {
+    "name": "CB2010",
+    "type": "integer"
+}, {
+    "name": "SchoolDist",
+    "type": "integer"
+}, {
+    "name": "Council",
+    "type": "integer"
+}, {
+    "name": "ZipCode",
+    "type": "integer"
+}, {
+    "name": "FireComp",
+    "type": "string"
+}, {
+    "name": "PolicePrct",
+    "type": "integer"
+}, {
+    "name": "Address",
+    "type": "string"
+}, {
+    "name": "ZoneDist1",
+    "type": "string"
+}, {
+    "name": "ZoneDist2",
+    "type": "string"
+}, {
+    "name": "ZoneDist3",
+    "type": "string"
+}, {
+    "name": "ZoneDist4",
+    "type": "string"
+}, {
+    "name": "Overlay1",
+    "type": "string"
+}, {
+    "name": "Overlay2",
+    "type": "string"
+}, {
+    "name": "SPDist1",
+    "type": "string"
+}, {
+    "name": "SPDist2",
+    "type": "string"
+}, {
+    "name": "LtdHeight",
+    "type": "string"
+}, {
+    "name": "AllZoning1",
+    "type": "string"
+}, {
+    "name": "AllZoning2",
+    "type": "string"
+}, {
+    "name": "SplitZone",
+    "type": "string"
+}, {
+    "name": "BldgClass",
+    "type": "string"
+}, {
+    "name": "LandUse",
+    "type": "integer"
+}, {
+    "name": "Easements",
+    "type": "integer"
+}, {
+    "name": "OwnerType",
+    "type": "string"
+}, {
+    "name": "OwnerName",
+    "type": "string"
+}, {
+    "name": "LotArea",
+    "type": "integer"
+}, {
+    "name": "BldgArea",
+    "type": "integer"
+}, {
+    "name": "ComArea",
+    "type": "integer"
+}, {
+    "name": "ResArea",
+    "type": "integer"
+}, {
+    "name": "OfficeArea",
+    "type": "integer"
+}, {
+    "name": "RetailArea",
+    "type": "integer"
+}, {
+    "name": "GarageArea",
+    "type": "integer"
+}, {
+    "name": "StrgeArea",
+    "type": "integer"
+}, {
+    "name": "FactryArea",
+    "type": "integer"
+}, {
+    "name": "OtherArea",
+    "type": "integer"
+}, {
+    "name": "AreaSource",
+    "type": "integer"
+}, {
+    "name": "NumBldgs",
+    "type": "integer"
+}, {
+    "name": "NumFloors",
+    "type": "float"
+}, {
+    "name": "UnitsRes",
+    "type": "integer"
+}, {
+    "name": "UnitsTotal",
+    "type": "integer"
+}, {
+    "name": "LotFront",
+    "type": "float"
+}, {
+    "name": "LotDepth",
+    "type": "float"
+}, {
+    "name": "BldgFront",
+    "type": "string"
+}, {
+    "name": "BldgDepth",
+    "type": "float"
+}, {
+    "name": "Ext",
+    "type": "string"
+}, {
+    "name": "ProxCode",
+    "type": "integer"
+}, {
+    "name": "IrrLotCode",
+    "type": "string"
+}, {
+    "name": "LotType",
+    "type": "integer"
+}, {
+    "name": "BsmtCode",
+    "type": "integer"
+}, {
+    "name": "AssessLand",
+    "type": "float"
+}, {
+    "name": "AssessTot",
+    "type": "float"
+}, {
+    "name": "ExemptLand",
+    "type": "float"
+}, {
+    "name": "ExemptTot",
+    "type": "float"
+}, {
+    "name": "YearBuilt",
+    "type": "integer"
+}, {
+    "name": "BuiltCode",
+    "type": "string"
+}, {
+    "name": "YearAlter1",
+    "type": "integer"
+}, {
+    "name": "YearAlter2",
+    "type": "integer"
+}, {
+    "name": "HistDist",
+    "type": "string"
+}, {
+    "name": "Landmark",
+    "type": "string"
+}, {
+    "name": "BuiltFAR",
+    "type": "float"
+}, {
+    "name": "ResidFAR",
+    "type": "float"
+}, {
+    "name": "CommFAR",
+    "type": "float"
+}, {
+    "name": "FacilFAR",
+    "type": "float"
+}, {
+    "name": "BoroCode",
+    "type": "integer"
+}, {
+    "name": "BBL",
+    "type": "float"
+}, {
+    "name": "CondoNo",
+    "type": "integer"
+}, {
+    "name": "Tract2010",
+    "type": "integer"
+}, {
+    "name": "XCoord",
+    "type": "integer"
+}, {
+    "name": "YCoord",
+    "type": "integer"
+}, {
+    "name": "ZoneMap",
+    "type": "string"
+}, {
+    "name": "ZMCode",
+    "type": "string"
+}, {
+    "name": "Sanborn",
+    "type": "string"
+}, {
+    "name": "TaxMap",
+    "type": "integer"
+}, {
+    "name": "EDesigNum",
+    "type": "string"
+}, {
+    "name": "APPBBL",
+    "type": "float"
+}, {
+    "name": "APPDate",
+    "type": "string"
+}, {
+    "name": "PLUTOMapID",
+    "type": "integer"
+}, {
+    "name": "Version",
+    "type": "string"
+}, {
+    "name": "MAPPLUTO_F",
+    "type": "integer"
+}, {
+    "name": "SHAPE_Leng",
+    "type": "float"
+}, {
+    "name": "SHAPE_Area",
+    "type": "float"
+}]
