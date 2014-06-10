@@ -1,0 +1,48 @@
+<html>
+  <head>
+    <!-- Sets initial viewport load and disables zooming  -->
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+
+    <!-- Makes your prototype chrome-less once bookmarked to your phone's home screen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <script src="//apis.google.com/js/client.js"></script>
+
+    <script type="text/javascript" src="//www.google.com/jsapi"></script>
+
+    <!-- TODO pre-compile -->
+    <script src="/js/libs/react-0.10.0.js"></script>
+    <script src="/js/libs/JSXTransformer-0.10.0.js"></script>
+
+    <script type="text/javascript" src="/js/libs/proj4.js"></script>
+    <script type="text/javascript" src="/js/libs/leaflet.js"></script>
+    <script type="text/javascript" src="/js/libs/jquery-1.11.1.min.js"></script>
+    <script type="text/sql" id="defaultQuery">
+    SELECT
+      pl_XCoord AS x,
+      pl_YCoord AS y,
+      FIRST(doc_amount) AS doc_amount,
+      GROUP_CONCAT(name, "|") AS name_concat,
+      FIRST(doc_date) AS time,
+      FIRST(pl_UnitsRes) AS res_units
+    FROM [acris-bigquery:acris.real_flat]
+    WHERE
+      doc_type = "MTGE"
+      AND doc_date BETWEEN TIMESTAMP("2014-03-01 00:00:00") AND TIMESTAMP("2014-03-30 23:59:59")
+    GROUP BY
+      x, y, document_id
+    HAVING
+      name_concat CONTAINS "CITIBANK"
+    ;
+    </script>
+
+    <link href="css/styles.css" rel="stylesheet">
+    <link href="css/libs/leaflet.css" rel="stylesheet">
+  </head>
+
+  <body id="body">
+    <script type="text/javascript" src="/js/visual-acris.js"></script>
+    <script type="text/jsx" src="/js/queryResponse.js"></script>
+  </body>
+</html>
