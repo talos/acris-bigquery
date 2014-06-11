@@ -1,16 +1,35 @@
 /**
 * @jsx React.DOM
 */
-// UPDATE TO USE YOUR PROJECT ID AND CLIENT ID
-var project_id = '682518744611';
-//var project_id = 'potent-retina-605';
-var client_id = '682518744611-ohch249uho63h8csg6qh32s393jsgdvk.apps.googleusercontent.com';
-var config = {
-  'client_id': client_id,
-  'scope': 'https://www.googleapis.com/auth/bigquery.readonly'
-};
-var plutoProj = 'PROJCS["NAD_1983_StatePlane_New_York_Long_Island_FIPS_3104_Feet",GEOGCS["GCS_North_American_1983",DATUM["D_North_American_1983",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Lambert_Conformal_Conic"],PARAMETER["False_Easting",984250.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",-74.0],PARAMETER["Standard_Parallel_1",40.66666666666666],PARAMETER["Standard_Parallel_2",41.03333333333333],PARAMETER["Latitude_Of_Origin",40.16666666666666],UNIT["Foot_US",0.3048006096012192]]';
-var reproject = proj4(plutoProj).inverse;
+
+// HELPERS
+var reproject = proj4('PROJCS["NAD_1983_StatePlane_New_York_Long_Island_FIPS_3104_Feet",GEOGCS["GCS_North_American_1983",DATUM["D_North_American_1983",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Lambert_Conformal_Conic"],PARAMETER["False_Easting",984250.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",-74.0],PARAMETER["Standard_Parallel_1",40.66666666666666],PARAMETER["Standard_Parallel_2",41.03333333333333],PARAMETER["Latitude_Of_Origin",40.16666666666666],UNIT["Foot_US",0.3048006096012192]]').inverse;
+
+// REACT CLASSES
+
+var Marker = React.createClass({
+
+  render: function () {
+    var data = this.props.data,
+        markerRows = [];
+
+    for (var k in data) {
+      markerRows.push(
+        <tr>
+          <th>{k}:</th>
+          <td>{data[k]}</td>
+        </tr>
+      );
+    }
+    return (
+      <div className="marker">
+        <table>
+          {markerRows}
+        </table>
+      </div>
+    );
+  }
+});
 
 var Map = React.createClass({
 
@@ -40,9 +59,17 @@ var Map = React.createClass({
   },
 
   render: function () {
-    for (var i in this.props.markers) {
-      this.props.markers[i].addTo(this.map);
-    }
+    //for (var i in this.props.markers) {
+    //  var marker = this.props.markers[i];
+    var self = this;
+    for (i in this.props.markers) {
+      var marker = this.props.markers[i];
+      marker
+          //.bindPopup('foo')
+          //.bindPopup(rendered)
+            .addTo(self.map);
+      //debugger;
+    };
     return (
       <div id="map"></div>
     );
@@ -53,7 +80,9 @@ var Map = React.createClass({
 var HistoryItem = React.createClass({
   render: function () {
     return (
-      <option>{this.props.query}</option>
+      <li>
+        <a href="#">{this.props.query}</a>
+      </li>
     )
   }
 });
@@ -72,9 +101,9 @@ var HistoryBar = React.createClass({
       );
     });
     return (
-      <select onChange={this.setQueryText}>
+      <ul className={this.props.className}>
         {historyItems}
-      </select>
+      </ul>
     );
   }
 });
@@ -93,16 +122,22 @@ var StatusBar = React.createClass({
 var QueryBar = React.createClass({
   render: function () {
     return (
-      <div id="query" className="pull-right">
-        <form onSubmit={this.props.onSubmitQuery}>
-          <textarea value={this.props.query}
-                    onChange={this.props.onQueryTextChange} />
-          <button type="submit"
-                  className="btn pull-right"
-                  disabled={this.props.alreadySubmitted}>
-            {this.props.authorized ? "" : "Authorize and " }Query
-          </button>
-        </form>
+      <input value={this.props.query}
+             onChange={this.props.onQueryTextChange} />
+    );
+  }
+});
+
+var APISettingsBar = React.createClass({
+  render: function () {
+    return (
+      <div>
+        <label htmlFor="googleProjectId">Google Project ID</label>
+        <input name="googleProjectId"
+               type="text"
+               onChange={this.props.onProjectIdChange}
+               value={this.props.projectId}
+        />
       </div>
     );
   }
@@ -112,7 +147,8 @@ var App = React.createClass({
 
   getInitialState: function () {
     return {
-      query: $('#defaultQuery').text().replace(/\s+/g, ' '),
+      query: this.props.query,
+      projectId: this.props.projectId,
       history: [],
       markers: []
     };
@@ -121,9 +157,12 @@ var App = React.createClass({
   authorize: function (callback) {
     var self = this;
     this.setState({'status': 'Authorizing'});
-    gapi.auth.authorize(config, function() {
+    gapi.auth.authorize({
+      'client_id': '682518744611-ohch249uho63h8csg6qh32s393jsgdvk.apps.googleusercontent.com',
+      'scope': 'https://www.googleapis.com/auth/bigquery.readonly'
+    }, function() {
       gapi.client.load('bigquery', 'v2', function () {
-        self.setState({authorized: true});
+        self.setState({authorizedProjectId: self.state.projectId});
         callback();
       });
     });
@@ -133,9 +172,9 @@ var App = React.createClass({
     if (evt) {
       evt.preventDefault();
     }
-    if (this.state.authorized) {
+    if (this.isAuthorized()) {
       var request = gapi.client.bigquery.jobs.query({
-        'projectId': project_id,
+        'projectId': this.state.projectId,
         'timeoutMs': '30000',
         'query': this.state.query
       });
@@ -155,7 +194,7 @@ var App = React.createClass({
         var item = response.result.rows[i];
         var xcoord = parseFloat(item.f[0].v);
         var ycoord = parseFloat(item.f[1].v);
-        var info = {};
+        var data = {};
         for (var j in item.f) {
           var value = item.f[j].v;
           var type = fields[j].type;
@@ -163,12 +202,18 @@ var App = React.createClass({
           if (type === 'TIMESTAMP') {
             value = Date(value);
           }
-          info[key] = value;
+          data[key] = value;
         }
         if (!isNaN(xcoord) && !isNaN(ycoord)) {
-          var lonlat = reproject([xcoord, ycoord]);
-          markers.push(L.marker([lonlat[1], lonlat[0]])
-            .bindPopup(JSON.stringify(info, undefined, 2)));
+          var lonlat = reproject([xcoord, ycoord]),
+          marker = L.marker([lonlat[1], lonlat[0]]);
+          marker.data = data;
+          markerDOM = <Marker data={marker.data} />;
+          rendered = React.renderComponentToStaticMarkup(markerDOM);
+          marker.bindPopup(rendered);
+          markers.push(marker);
+                       //{data: data});
+                       //JSON.stringify(info, undefined, 2))
         }
       }
       this.state.history.push(this.state.query);
@@ -180,6 +225,7 @@ var App = React.createClass({
       });
     } catch(err) {
       this.setState({ status: 'Error' });
+      throw (err);
     }
   },
 
@@ -187,8 +233,18 @@ var App = React.createClass({
     this.setState({query: evt.target.value});
   },
 
+  onProjectIdChange: function (evt) {
+    this.setState({
+      projectId: evt.target.value
+    });
+  },
+
   setQueryText: function (queryText) {
     this.setState({query: queryText});
+  },
+
+  isAuthorized: function () {
+    return this.state.authorizedProjectId === this.state.projectId;
   },
 
   render: function () {
@@ -199,22 +255,69 @@ var App = React.createClass({
                      / (1024 * 1024 * 1024 * 1024)).toFixed(3);
     }
     return (
-      <div id="fullpage">
-        <header id="header">
-          <h1 id="title" className="pull-left">Visual ACRIS</h1>
-          <HistoryBar history={this.state.history}
-                      setQueryText={this.setQueryText}
-          />
-          <StatusBar expense={expense}
-                     status={this.state.status}
-          />
-          <QueryBar query={this.state.query}
-                    onQueryTextChange={this.onQueryTextChange}
-                    onSubmitQuery={this.onSubmitQuery}
-                    authorized={this.state.authorized}
-                    alreadySubmitted={this.state.query === lastQuery}
-          />
-        </header>
+      <div id="app">
+        <nav className="navbar navbar-default" role="navigation">
+          <div className="container-fluid">
+            <div className="navbar-header">
+              <button type="button"
+                      className="navbar-toggle"
+                      data-toggle="collapse"
+                      data-target="#navbar-content" />
+              <span className="sr-only">Toggle navigation</span>
+              <a className="navbar-brand" href="#">Visual ACRIS</a>
+            </div>
+
+            <div className="collapse navbar-collapse" id="navbar-content">
+              <ul className="nav navbar-nav">
+                <li>
+                  <a href="#">
+                    <StatusBar expense={expense}
+                             status={this.state.status}
+                    />
+                  </a>
+                </li>
+                <li className="dropdown">
+                  <a href="#" className="dropdown-toggle"
+                              data-toggle="dropdown">
+                    History<b className="caret"></b>
+                  </a>
+                  <HistoryBar className="dropdown-menu"
+                              history={this.state.history}
+                              setQueryText={this.setQueryText}
+                  />
+                </li>
+                <form className="navbar-form navbar-right"
+                      onSubmit={this.onSubmitQuery}>
+                  <li className="dropdown">
+                    <a href="#" className="dropdown-toggle"
+                                data-toggle="dropdown">
+                      Edit<b className="caret"></b>
+                    </a>
+                    <ul className="dropdown-menu">
+                      <li>
+                        <APISettingsBar projectId={this.state.projectId}
+                                        onProjectIdChange={this.onProjectIdChange}
+                        />
+                      </li>
+                      <li>
+                        <QueryBar query={this.state.query}
+                                  onQueryTextChange={this.onQueryTextChange}
+                        />
+                      </li>
+                    </ul>
+                  </li>
+                  <div className="form-group">
+                    <button type="submit"
+                            className="btn btn-default"
+                            disabled={this.state.query === lastQuery}>
+                      {this.isAuthorized() ? "" : "Authorize and " }Query
+                    </button>
+                  </div>
+                </form>
+              </ul>
+            </div>
+          </div>
+        </nav>
         <Map markers={this.state.markers} />
       </div>
     )
@@ -222,8 +325,11 @@ var App = React.createClass({
 
 });
 
+// INSTANTIATION
 React.renderComponent(
-  <App />,
+  <App query={$('#defaultQuery').text().replace(/\s+/g, ' ')}
+       projectId = '682518744611'
+  />,
   document.getElementById('body')
 );
 

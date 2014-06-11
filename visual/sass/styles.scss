@@ -1,38 +1,20 @@
 // customize bootstrap variables here:
-@import "variables";
+//@import "variables";
 @import "bootstrap";
 
-#fullpage {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  height: 100%;
-}
-
 #header {
-  top: 0px;
-  bottom: 180px;
-  width: 100%;
-  position: absolute;
-
   #title {
     display: none;
   }
 
   #query {
-    width: 100%;
 
     textarea {
-      width: 100%;
-      height: 100px;
     }
   }
 }
 
 #map {
+  height: 100%;
   width: 100%;
-  top: 180px;
-  bottom: 0px;
-  position: absolute;
 }
