@@ -2,10 +2,26 @@
 * @jsx React.DOM
 */
 
+/*jshint browser: true, unused: false*/
+/*global React:false, L:false, gapi:false, proj4, $*/
+
 // HELPERS
-var reproject = proj4('PROJCS["NAD_1983_StatePlane_New_York_Long_Island_FIPS_3104_Feet",GEOGCS["GCS_North_American_1983",DATUM["D_North_American_1983",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Lambert_Conformal_Conic"],PARAMETER["False_Easting",984250.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",-74.0],PARAMETER["Standard_Parallel_1",40.66666666666666],PARAMETER["Standard_Parallel_2",41.03333333333333],PARAMETER["Latitude_Of_Origin",40.16666666666666],UNIT["Foot_US",0.3048006096012192]]').inverse;
+var reproject = proj4($('meta[name=pluto-proj4]').attr('content')).inverse;
 
 // REACT CLASSES
+
+var Query = React.createClass({
+
+
+  render: function () {
+    /* jshint ignore:start */
+    return (
+      <span></span>
+    )
+    /*jshint ignore:end */
+  }
+});
+
 
 var Marker = React.createClass({
 
@@ -13,6 +29,7 @@ var Marker = React.createClass({
     var data = this.props.data,
         markerRows = [];
 
+    /* jshint ignore:start */
     for (var k in data) {
       markerRows.push(
         <tr>
@@ -28,6 +45,7 @@ var Marker = React.createClass({
         </table>
       </div>
     );
+    /* jshint ignore:end */
   }
 });
 
@@ -62,28 +80,28 @@ var Map = React.createClass({
     //for (var i in this.props.markers) {
     //  var marker = this.props.markers[i];
     var self = this;
+    /* jshint ignore:start */
     for (i in this.props.markers) {
       var marker = this.props.markers[i];
-      marker
-          //.bindPopup('foo')
-          //.bindPopup(rendered)
-            .addTo(self.map);
-      //debugger;
+      marker.addTo(self.map);
     };
     return (
       <div id="map"></div>
     );
+    /* jshint ignore:end */
   }
 
 });
 
 var HistoryItem = React.createClass({
   render: function () {
+    /* jshint ignore:start */
     return (
       <li>
         <a href="#">{this.props.query}</a>
       </li>
     )
+    /* jshint ignore:end */
   }
 });
 
@@ -95,6 +113,7 @@ var HistoryBar = React.createClass({
 
   render: function () {
     var historyItems = [];
+    /* jshint ignore:start */
     this.props.history.forEach(function (query) {
       historyItems.push(
         <HistoryItem query={query} />
@@ -105,31 +124,94 @@ var HistoryBar = React.createClass({
         {historyItems}
       </ul>
     );
+    /* jshint ignore:end */
   }
 });
 
 var StatusBar = React.createClass({
   render: function () {
+    /* jshint ignore:start */
     return (
       <div className="pull-right">
         Status: {this.props.status === 'Done' ?
             'Processed $' + this.props.expense : this.props.status}
       </div>
     );
+    /* jshint ignore:end */
   }
 });
 
 var QueryBar = React.createClass({
+
+  toSQL: function () {
+    /* jshint ignore:start */
+    return $(React.renderComponentToStaticMarkup(
+      <span>
+        SELECT
+          pl_XCoord AS x,
+          pl_YCoord AS y,
+          FIRST(doc_amount) AS doc_amount,
+          GROUP_CONCAT(party_type_string + ':' + name, "|") AS name_concat,
+          FORMAT_UTC_USEC(FIRST(doc_date)) AS time,
+          FIRST(pl_UnitsRes) AS res_units
+        FROM [acris-bigquery:acris.real_flat]
+        WHERE
+          doc_type = "{this.props.input.docType}" AND
+          recorded_filed BETWEEN {new Date(this.props.input.startDate).getTime()}000 AND <br />
+            {new Date(this.props.input.endDate).getTime()}000
+        GROUP BY
+          x, y, document_id
+        HAVING
+          name_concat CONTAINS "{this.props.input.searchName}"
+      </span>
+    )).text();
+    /* jshint ignore:end */
+  },
+
+  onInputChange: function (evt) {
+    this.props.onInputChange({
+      "startDate": this.refs.startDate.getDOMNode().value,
+      "endDate": this.refs.endDate.getDOMNode().value,
+      "searchName": this.refs.searchName.getDOMNode().value,
+      "docType": this.refs.docType.getDOMNode().value
+    });
+  },
+
   render: function () {
+    /* jshint ignore:start */
     return (
-      <input value={this.props.query}
-             onChange={this.props.onQueryTextChange} />
+      <div>
+        <label htmlFor="startDate">Start:</label>
+        <input name="startDate"
+               ref="startDate"
+               type="date"
+               value={this.props.input.startDate}
+               onChange={this.onInputChange} />
+        <label htmlFor="endDate">End:</label>
+        <input name="endDate"
+               ref="endDate"
+               type="date"
+               value={this.props.input.endDate}
+               onChange={this.onInputChange} />
+        <label htmlFor="searchName">Name:</label>
+        <input name="searchName"
+               ref="searchName"
+               value={this.props.input.searchName}
+               onChange={this.onInputChange} />
+       <label htmlFor="docType">Doc:</label>
+       <input name="docType"
+              ref="docType"
+              value={this.props.input.docType}
+              onChange={this.onInputChange} />
+     </div>
     );
+    /* jshint ignore:end */
   }
 });
 
 var APISettingsBar = React.createClass({
   render: function () {
+    /* jshint ignore:start */
     return (
       <div>
         <label htmlFor="googleProjectId">Google Project ID</label>
@@ -140,6 +222,7 @@ var APISettingsBar = React.createClass({
         />
       </div>
     );
+    /* jshint ignore:end */
   }
 });
 
@@ -147,10 +230,15 @@ var App = React.createClass({
 
   getInitialState: function () {
     return {
-      query: this.props.query,
       projectId: this.props.projectId,
       history: [],
-      markers: []
+      markers: [],
+      input: {
+        startDate: '2013-01-01',
+        endDate: '2013-02-01',
+        docType: 'MTGE',
+        searchName: 'CITIBANK'
+      }
     };
   },
 
@@ -158,7 +246,8 @@ var App = React.createClass({
     var self = this;
     this.setState({'status': 'Authorizing'});
     gapi.auth.authorize({
-      'client_id': '682518744611-ohch249uho63h8csg6qh32s393jsgdvk.apps.googleusercontent.com',
+      'client_id': '682518744611-ohch249uho63h8csg6qh32s393jsgdvk.' +
+                   'apps.googleusercontent.com',
       'scope': 'https://www.googleapis.com/auth/bigquery.readonly'
     }, function() {
       gapi.client.load('bigquery', 'v2', function () {
@@ -176,7 +265,7 @@ var App = React.createClass({
       var request = gapi.client.bigquery.jobs.query({
         'projectId': this.state.projectId,
         'timeoutMs': '30000',
-        'query': this.state.query
+        'query': this.refs.query.toSQL()
       });
       this.setState({'status': 'Querying'});
 
@@ -191,14 +280,14 @@ var App = React.createClass({
       var markers = [],
           fields = response.schema.fields;
       for (var i in response.result.rows) {
-        var item = response.result.rows[i];
-        var xcoord = parseFloat(item.f[0].v);
-        var ycoord = parseFloat(item.f[1].v);
-        var data = {};
+        var item = response.result.rows[i],
+            xcoord = parseFloat(item.f[0].v),
+            ycoord = parseFloat(item.f[1].v),
+            data = {};
         for (var j in item.f) {
-          var value = item.f[j].v;
-          var type = fields[j].type;
-          var key = fields[j].name;
+          var value = item.f[j].v,
+              type = fields[j].type,
+              key = fields[j].name;
           if (type === 'TIMESTAMP') {
             value = Date(value);
           }
@@ -206,14 +295,15 @@ var App = React.createClass({
         }
         if (!isNaN(xcoord) && !isNaN(ycoord)) {
           var lonlat = reproject([xcoord, ycoord]),
-          marker = L.marker([lonlat[1], lonlat[0]]);
+              marker = L.marker([lonlat[1], lonlat[0]]);
           marker.data = data;
-          markerDOM = <Marker data={marker.data} />;
-          rendered = React.renderComponentToStaticMarkup(markerDOM);
-          marker.bindPopup(rendered);
+          /*jshint ignore:start */
+          marker.bindPopup(
+            React.renderComponentToStaticMarkup(
+              <Marker data={marker.data} />
+            ));
+          /*jshint ignore:end */
           markers.push(marker);
-                       //{data: data});
-                       //JSON.stringify(info, undefined, 2))
         }
       }
       this.state.history.push(this.state.query);
@@ -225,12 +315,13 @@ var App = React.createClass({
       });
     } catch(err) {
       this.setState({ status: 'Error' });
+      console.log(response);
       throw (err);
     }
   },
 
-  onQueryTextChange: function (evt) {
-    this.setState({query: evt.target.value});
+  onInputChange: function (newInput) {
+    this.setState({input: newInput});
   },
 
   onProjectIdChange: function (evt) {
@@ -251,9 +342,11 @@ var App = React.createClass({
     var lastQuery = this.state.history[this.state.history.length - 1];
     var response = this.state.response;
     if (response && response.result) {
-      var expense = ((parseFloat(response.result.totalBytesProcessed) * 5)
-                     / (1024 * 1024 * 1024 * 1024)).toFixed(3);
+      var bytesProcessed = response.result.totalBytesProcessed;
+      var expense = (parseFloat(bytesProcessed) * 5 / Math.pow(1024, 4))
+        .toFixed(3);
     }
+    /*jshint ignore:start */
     return (
       <div id="app">
         <nav className="navbar navbar-default" role="navigation">
@@ -267,6 +360,7 @@ var App = React.createClass({
               <a className="navbar-brand" href="#">Visual ACRIS</a>
             </div>
 
+            <form onSubmit={this.onSubmitQuery}>
             <div className="collapse navbar-collapse" id="navbar-content">
               <ul className="nav navbar-nav">
                 <li>
@@ -279,57 +373,60 @@ var App = React.createClass({
                 <li className="dropdown">
                   <a href="#" className="dropdown-toggle"
                               data-toggle="dropdown">
-                    History<b className="caret"></b>
+                    History {this.state.history.length ? '(' + this.state.history.length + ')' : ''}
+                    <b className="caret"></b>
                   </a>
                   <HistoryBar className="dropdown-menu"
                               history={this.state.history}
                               setQueryText={this.setQueryText}
                   />
                 </li>
-                <form className="navbar-form navbar-right"
-                      onSubmit={this.onSubmitQuery}>
-                  <li className="dropdown">
-                    <a href="#" className="dropdown-toggle"
-                                data-toggle="dropdown">
-                      Edit<b className="caret"></b>
-                    </a>
-                    <ul className="dropdown-menu">
-                      <li>
-                        <APISettingsBar projectId={this.state.projectId}
-                                        onProjectIdChange={this.onProjectIdChange}
-                        />
-                      </li>
-                      <li>
-                        <QueryBar query={this.state.query}
-                                  onQueryTextChange={this.onQueryTextChange}
-                        />
-                      </li>
-                    </ul>
-                  </li>
-                  <div className="form-group">
-                    <button type="submit"
-                            className="btn btn-default"
-                            disabled={this.state.query === lastQuery}>
-                      {this.isAuthorized() ? "" : "Authorize and " }Query
-                    </button>
-                  </div>
-                </form>
+                <li className="dropdown">
+                  <a href="#" className="dropdown-toggle"
+                              data-toggle="dropdown">
+                    Edit<b className="caret"></b>
+                  </a>
+                  <ul className="dropdown-menu">
+                    <li>
+                      <APISettingsBar projectId={this.state.projectId}
+                                      onProjectIdChange={this.onProjectIdChange}
+                      />
+                    </li>
+                  </ul>
+                </li>
+                <li className="navbar-form">
+                  <QueryBar ref='query'
+                            input={this.state.input}
+                            onInputChange={this.onInputChange}
+                  />
+                  <button type="submit"
+                          className="btn btn-default"
+                          //disabled={this.state.query === lastQuery}
+                          >
+                    {this.isAuthorized() ? "" : "Authorize and " }Query
+                  </button>
+                </li>
               </ul>
             </div>
+            </form>
           </div>
         </nav>
         <Map markers={this.state.markers} />
       </div>
     )
+    /*jshint ignore:end */
   }
 
 });
 
 // INSTANTIATION
+//var defaultStart = ,
+//    defaultEnd = ;
 React.renderComponent(
-  <App query={$('#defaultQuery').text().replace(/\s+/g, ' ')}
-       projectId = '682518744611'
-  />,
+  /*jshint ignore:start */
+  //<App query={$('#defaultQuery').text().replace(/\s+/g, ' ')}
+  <App projectId = '682518744611' />,
+  /*jshint ignore:end */
   document.getElementById('body')
 );
 
