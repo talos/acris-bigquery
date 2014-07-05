@@ -22,7 +22,7 @@ SELECT
        WHEN p.a_party_type = 3 THEN dc.Party3_type
        ELSE '' END as party_type_string,
   p.a_name name, p.a_address_1 address_1, p.a_address_2 address_2,
-  p.a_country country, p.a_city city, p.a_state state, p.a_zip zip
+  p.a_country country, p.a_city city, p.a_state state, p.a_zip zip,
 
   /* References columns */
   r.a_reference_by_crfn reference_by_crfn,

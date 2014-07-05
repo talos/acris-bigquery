@@ -13,9 +13,8 @@ for schema in personal real; do
         schematable=acris.latest_${table}
 
         bq show $schematable > /dev/null && echo "$schematable already exists" ||
-            echo 'bad'
-            #bq --nosync query --allow_large_results --noappend_table \
-            #    --replace --destination_table acris.latest_${table} "${stmt}"
+            bq --nosync query --allow_large_results --noappend_table \
+                --replace --destination_table acris.latest_${table} "${stmt}"
     done
 done
 
@@ -34,8 +33,8 @@ done
 
 # Run the flattening queries and save as their own tables.
 for schema in personal real; do
-    table=${schema}_flat
+    table=acris.${schema}_flat
     bq show $table > /dev/null && echo "$table already exists" ||
-        bq --nosync query --allow_large_results --noapend_table --replace \
+        bq --nosync query --allow_large_results --noappend_table --replace \
             --destination_table ${table} "$(cat sql/${schema}_flatten.sql)"
 done
