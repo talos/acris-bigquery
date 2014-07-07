@@ -36,5 +36,5 @@ for schema in personal real; do
     table=acris.${schema}_flat
     bq show $table > /dev/null && echo "$table already exists" ||
         bq --nosync query --allow_large_results --noappend_table --replace \
-            --destination_table ${table} "$(cat sql/${schema}_flatten.sql)"
+           --destination_table ${table} "$(cat sql/${schema}_flatten.sql)"
 done
