@@ -1,4 +1,13 @@
-#!/bin/bash
+#!/bin/bash -e
+
+
+mkdir -p tmp
+
+
+### Determine whether we need to download new files
+DATAJSON=tmp/data.json
+wget https://nycopendata.socrata.com/data.json -o logs/data.json.log -O $DATAJSON
+python should_download $DATAJSON $(cat output/current_through)
 
 
 ### Set up output dirs
