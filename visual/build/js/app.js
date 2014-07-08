@@ -9,19 +9,146 @@
 var reproject = proj4($('meta[name=pluto-proj4]').attr('content')).inverse;
 
 // REACT CLASSES
+var DocumentQuery = React.createClass({
+  toSQL: function () {
+    /* jshint ignore:start */
+    return $(React.renderComponentToStaticMarkup(
+      <span>
+        SELECT
+          pl_XCoord AS x,
+          pl_YCoord AS y,
+          FIRST(doc_amount) AS doc_amount,
+          GROUP_CONCAT(party_type_string + ':' + name, "|") AS name_concat,
+          FORMAT_UTC_USEC(FIRST(doc_date)) AS time,
+          FIRST(pl_UnitsRes) AS res_units
+        FROM [acris-bigquery:acris.real_flat]
+        WHERE
+          doc_type = "{this.props.input.docType}" AND
+          recorded_filed BETWEEN {new Date(this.props.input.startDate).getTime()}000 AND <br />
+            {new Date(this.props.input.endDate).getTime()}000
+        GROUP BY
+          x, y, document_id
+        HAVING
+          name_concat CONTAINS "{this.props.input.searchName}"
+      </span>
+    )).text();
+    /* jshint ignore:end */
+  },
 
-var Query = React.createClass({
-
+  onInputChange: function (evt) {
+    this.props.onInputChange({
+      "startDate": this.refs.startDate.getDOMNode().value,
+      "endDate": this.refs.endDate.getDOMNode().value,
+      "searchName": this.refs.searchName.getDOMNode().value,
+      "docType": this.refs.docType.getDOMNode().value
+    });
+  },
 
   render: function () {
     /* jshint ignore:start */
     return (
-      <span></span>
-    )
-    /*jshint ignore:end */
+      <div>
+        <label htmlFor="startDate">Start:</label>
+        <input name="startDate"
+               ref="startDate"
+               type="date"
+               value={this.props.input.startDate}
+               onChange={this.onInputChange} />
+        <label htmlFor="endDate">End:</label>
+        <input name="endDate"
+               ref="endDate"
+               type="date"
+               value={this.props.input.endDate}
+               onChange={this.onInputChange} />
+        <label htmlFor="searchName">Name:</label>
+        <input name="searchName"
+               ref="searchName"
+               value={this.props.input.searchName}
+               onChange={this.onInputChange} />
+       <label htmlFor="docType">Doc:</label>
+       <input name="docType"
+              ref="docType"
+              value={this.props.input.docType}
+              onChange={this.onInputChange} />
+     </div>
+    );
+    /* jshint ignore:end */
   }
 });
 
+var DeepOwnershipQuery = React.createClass({
+  toSQL: function () {
+    /* jshint ignore:start */
+    return $(React.renderComponentToStaticMarkup(
+      <span>
+        SELECT
+          pl_XCoord AS x,
+          pl_YCoord AS y,
+          FIRST(doc_amount) AS doc_amount,
+          GROUP_CONCAT(party_type_string + ':' + name, "|") AS name_concat,
+          FORMAT_UTC_USEC(FIRST(doc_date)) AS time,
+          FIRST(pl_UnitsRes) AS res_units
+        FROM [acris-bigquery:acris.real_flat]
+        WHERE
+          doc_type = "DEED" AND
+        GROUP BY
+          x, y
+        HAVING
+          address_1 CONTAINS "{this.props.input.searchName}"
+      </span>
+    )).text();
+    /* jshint ignore:end */
+  },
+
+  onInputChange: function (evt) {
+    this.props.onInputChange({
+      //"startDate": this.refs.startDate.getDOMNode().value,
+      //"endDate": this.refs.endDate.getDOMNode().value,
+      //"searchName": this.refs.searchName.getDOMNode().value
+      "borough": this.refs.address.getDOMNode().value
+    });
+  },
+
+  render: function () {
+    /* jshint ignore:start */
+    return (
+      <div>
+        /*<label htmlFor="startDate">Start:</label>
+        <input name="startDate"
+               ref="startDate"
+               type="date"
+               value={this.props.input.startDate}
+               onChange={this.onInputChange} />
+        <label htmlFor="endDate">End:</label>
+        <input name="endDate"
+               ref="endDate"
+               type="date"
+               value={this.props.input.endDate}
+               onChange={this.onInputChange} />*/
+        <label htmlFor="searchName">Name:</label>
+        <input name="searchName"
+               ref="searchName"
+               value={this.props.input.searchName}
+               onChange={this.onInputChange} />
+     </div>
+    );
+    /* jshint ignore:end */
+  }
+
+});
+
+var QueryBar = React.createClass({
+
+  propTypes: {
+    query: React.PropTypes.component.isRequired
+  },
+
+  render: function () {
+    /* jshint ignore: start */
+    { this.props.query }
+    /* jshint ignore: end */
+  }
+});
 
 var Marker = React.createClass({
 
@@ -136,74 +263,6 @@ var StatusBar = React.createClass({
         Status: {this.props.status === 'Done' ?
             'Processed $' + this.props.expense : this.props.status}
       </div>
-    );
-    /* jshint ignore:end */
-  }
-});
-
-var QueryBar = React.createClass({
-
-  toSQL: function () {
-    /* jshint ignore:start */
-    return $(React.renderComponentToStaticMarkup(
-      <span>
-        SELECT
-          pl_XCoord AS x,
-          pl_YCoord AS y,
-          FIRST(doc_amount) AS doc_amount,
-          GROUP_CONCAT(party_type_string + ':' + name, "|") AS name_concat,
-          FORMAT_UTC_USEC(FIRST(doc_date)) AS time,
-          FIRST(pl_UnitsRes) AS res_units
-        FROM [acris-bigquery:acris.real_flat]
-        WHERE
-          doc_type = "{this.props.input.docType}" AND
-          recorded_filed BETWEEN {new Date(this.props.input.startDate).getTime()}000 AND <br />
-            {new Date(this.props.input.endDate).getTime()}000
-        GROUP BY
-          x, y, document_id
-        HAVING
-          name_concat CONTAINS "{this.props.input.searchName}"
-      </span>
-    )).text();
-    /* jshint ignore:end */
-  },
-
-  onInputChange: function (evt) {
-    this.props.onInputChange({
-      "startDate": this.refs.startDate.getDOMNode().value,
-      "endDate": this.refs.endDate.getDOMNode().value,
-      "searchName": this.refs.searchName.getDOMNode().value,
-      "docType": this.refs.docType.getDOMNode().value
-    });
-  },
-
-  render: function () {
-    /* jshint ignore:start */
-    return (
-      <div>
-        <label htmlFor="startDate">Start:</label>
-        <input name="startDate"
-               ref="startDate"
-               type="date"
-               value={this.props.input.startDate}
-               onChange={this.onInputChange} />
-        <label htmlFor="endDate">End:</label>
-        <input name="endDate"
-               ref="endDate"
-               type="date"
-               value={this.props.input.endDate}
-               onChange={this.onInputChange} />
-        <label htmlFor="searchName">Name:</label>
-        <input name="searchName"
-               ref="searchName"
-               value={this.props.input.searchName}
-               onChange={this.onInputChange} />
-       <label htmlFor="docType">Doc:</label>
-       <input name="docType"
-              ref="docType"
-              value={this.props.input.docType}
-              onChange={this.onInputChange} />
-     </div>
     );
     /* jshint ignore:end */
   }
@@ -338,6 +397,10 @@ var App = React.createClass({
     return this.state.authorizedProjectId === this.state.projectId;
   },
 
+  //getQuery: function () {
+  //  return DocumentQuery;
+  //},
+
   render: function () {
     var lastQuery = this.state.history[this.state.history.length - 1];
     var response = this.state.response;
@@ -366,7 +429,7 @@ var App = React.createClass({
                 <li>
                   <a href="#">
                     <StatusBar expense={expense}
-                             status={this.state.status}
+                               status={this.state.status}
                     />
                   </a>
                 </li>
@@ -395,9 +458,9 @@ var App = React.createClass({
                   </ul>
                 </li>
                 <li className="navbar-form">
-                  <QueryBar ref='query'
-                            input={this.state.input}
-                            onInputChange={this.onInputChange}
+                  <DocumentQuery ref='query'
+                                 input={this.state.input}
+                                 onInputChange={this.onInputChange}
                   />
                   <button type="submit"
                           className="btn btn-default"
