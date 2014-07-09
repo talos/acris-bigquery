@@ -5,15 +5,31 @@ mkdir -p tmp
 
 
 ### Determine whether we need to download new files
+DATAURL=https://nycopendata.socrata.com/data.json
 DATAJSON=tmp/data.json
-wget https://nycopendata.socrata.com/data.json -o logs/data.json.log -O $DATAJSON
-python should_download $DATAJSON $(cat output/current_through)
+LAST_MODIFIED=$(cat output/last_modified 2>/dev/null || echo -n '')
+echo "Determining whether data online is more recent than $LAST_MODIFIED from $DATAURL..."
 
+wget $DATAURL -o logs/data.json.log -O $DATAJSON
+NEW_LAST_MODIFIED=$(python last_modified.py $DATAJSON)
+
+if [[ $LAST_MODIFIED = $NEW_LAST_MODIFIED ]]; then
+    echo "Already have data current through $LAST_MODIFIED, exiting."
+    exit 1
+fi
+
+echo "Downloading new data for $NEW_LAST_MODIFIED, backing up old data..."
 
 ### Set up output dirs
 
 mkdir -p logs
 mkdir -p output
+
+rm -rf output/real-bak
+rm -rf output/personal-bak
+
+mv output/real output/real-bak
+mv output/personal output/personal-bak
 
 
 ### Download datasets from Socrata
@@ -77,63 +93,72 @@ download code property_types 94g4-w6xz
 download code states 5c9e-33xj
 download code country j2iz-mwzu # This is switched with `ucc_collateral` on Socrata
 
-
-### Download MapPLUTO data
-mkdir -p logs/pluto output/pluto/shpsources
-for release in 02b 03c 04c 05d 06c 07c 09v1 09v2 10v1 10v2 11v1 11v2 12v1 12v2 13v1 13v2; do
-    if [ -e output/pluto/shpsources/$release ]; then
-        echo "Already downloaded MapPLUTO $release"
-    else
-        echo "Downloading MapPLUTO $release"
-        wget -o logs/pluto/shpsources/$release.log -O output/pluto/$release.zip \
-            "http://www.nyc.gov/html/dcp/download/bytes/mappluto_$release.zip" &
-    fi
-done
-
 # Wait for downloads to complete
 echo "Waiting for downloads to complete."
 wait
 
+# TODO: mappluto data should be handled in a separate script
+#       ### Download MapPLUTO data
+#       mkdir -p logs/pluto output/pluto/shpsources
+#       for release in 02b 03c 04c 05d 06c 07c 09v1 09v2 10v1 10v2 11v1 11v2 12v1 12v2 13v1 13v2; do
+#           if [ -e output/pluto/shpsources/$release ]; then
+#               echo "Already downloaded MapPLUTO $release"
+#           else
+#               echo "Downloading MapPLUTO $release"
+#               wget -o logs/pluto/shpsources/$release.log -O output/pluto/$release.zip \
+#                   "http://www.nyc.gov/html/dcp/download/bytes/mappluto_$release.zip" &
+#           fi
+#       done
+#       
+#       # Wait for downloads to complete
+#       echo "Waiting for downloads to complete."
+#       wait
+#       
+#       
+#       ### Unzip MAPPluto data
+#       for archive in output/pluto/*.zip; do
+#           base=$(basename $archive .zip)
+#           mkdir -p output/pluto/shpsources/$base
+#           if [ ! -e output/pluto/shpsources/$base ]; then
+#               unzip -d output/pluto/shpsources/$base $archive
+#               rm -f $archive
+#           fi
+#       done
+#       
+#       ### Convert MAPPluto data to CSV
+#       mkdir -p output/pluto/csvsources
+#       for f in $(ls output/pluto/shpsources/**/MapPLUTO*/*/*{PLUTO,pluto}.shp); do
+#           version=$(basename $(dirname $(dirname $f)))
+#           borough=$(basename $f .shp)
+#           outfile=output/pluto/csvsources/${version}_${borough}.csv
+#           if [ -e $outfile ]; then
+#               echo "Skipping $f, $outfile exists already..."
+#           else
+#               echo "Converting $f to ${version}_${borough}.csv via ogr2ogr..."
+#               ogr2ogr -f csv $outfile $f
+#           fi
+#       done
+#       wait
+#       
+#       # It's not possible to just merge all our CSVs together, since the schema
+#       # changes from PLUTO to PLUTO.  Meh.
+#       #    ### Merge all output CSVs to one big'un
+#       #    # First, grab a random header row from output; then, put in all other rows
+#       #    # excluding headers
+#       #    allpluto=output/pluto/pluto.csv
+#       #    
+#       #    ls output/pluto/csvsources/*.csv | head -n 1 | xargs head -n 1 > $allpluto
+#       #    ls output/pluto/csvsources/*.csv | 
+#       
+#       # Instead we just merge together the latest (13v2) and upload that.
+#       pluto_version=13v1
+#       echo "Merging together pluto $pluto_version and zipping"
+#       pluto=output/pluto/pluto.csv
+#       ls output/pluto/csvsources/MapPLUTO_${pluto_version}_*.csv | head -n 1 | xargs head -n 1 > $pluto
+#       ls output/pluto/csvsources/MapPLUTO_${pluto_version}_*.csv | xargs tail -q -n +2 >> $pluto
+#       gzip -9 $pluto
 
-### Unzip MAPPluto data
-for archive in output/pluto/*.zip; do
-    base=$(basename $archive .zip)
-    mkdir -p output/pluto/shpsources/$base
-    if [ ! -e output/pluto/shpsources/$base ]; then
-        unzip -d output/pluto/shpsources/$base $archive
-        rm -f $archive
-    fi
-done
+echo $NEW_LAST_MODIFIED > output/last_modified
 
-### Convert MAPPluto data to CSV
-mkdir -p output/pluto/csvsources
-for f in $(ls output/pluto/shpsources/**/MapPLUTO*/*/*{PLUTO,pluto}.shp); do
-    version=$(basename $(dirname $(dirname $f)))
-    borough=$(basename $f .shp)
-    outfile=output/pluto/csvsources/${version}_${borough}.csv
-    if [ -e $outfile ]; then
-        echo "Skipping $f, $outfile exists already..."
-    else
-        echo "Converting $f to ${version}_${borough}.csv via ogr2ogr..."
-        ogr2ogr -f csv $outfile $f
-    fi
-done
-wait
-
-# It's not possible to just merge all our CSVs together, since the schema
-# changes from PLUTO to PLUTO.  Meh.
-#    ### Merge all output CSVs to one big'un
-#    # First, grab a random header row from output; then, put in all other rows
-#    # excluding headers
-#    allpluto=output/pluto/pluto.csv
-#    
-#    ls output/pluto/csvsources/*.csv | head -n 1 | xargs head -n 1 > $allpluto
-#    ls output/pluto/csvsources/*.csv | 
-
-# Instead we just merge together the latest (13v2) and upload that.
-pluto_version=13v1
-echo "Merging together pluto $pluto_version and zipping"
-pluto=output/pluto/pluto.csv
-ls output/pluto/csvsources/MapPLUTO_${pluto_version}_*.csv | head -n 1 | xargs head -n 1 > $pluto
-ls output/pluto/csvsources/MapPLUTO_${pluto_version}_*.csv | xargs tail -q -n +2 >> $pluto
-gzip -9 $pluto
+echo Gzipping CSVs in output folder...
+gzip -9 output/**/*.csv
