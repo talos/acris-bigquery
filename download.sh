@@ -1,35 +1,41 @@
 #!/bin/bash -e
 
-
+source utils/colors.sh
 mkdir -p tmp
 
+
+LAST_MODIFIED_FILE=output/last_modified
+LAST_MODIFIED=$(cat ${LAST_MODIFIED_FILE} 2>/dev/null || echo -n '')
+if [[ -e output/real && -e output/personal && $LAST_MODIFIED = '' ]]; then
+    error "Preexisting output with no ${LAST_MODIFIED_FILE}"
+    error "Please specify last modified date there, for example:"
+    info "echo 2014-07-08 > ${LAST_MODIFIED_FILE}"
+    echo
+    exit 1
+fi
 
 ### Determine whether we need to download new files
 DATAURL=https://nycopendata.socrata.com/data.json
 DATAJSON=tmp/data.json
-LAST_MODIFIED=$(cat output/last_modified 2>/dev/null || echo -n '')
-echo "Determining whether data online is more recent than $LAST_MODIFIED from $DATAURL..."
+info "Determining whether data online is more recent than $LAST_MODIFIED from $DATAURL..."
 
 wget $DATAURL -o logs/data.json.log -O $DATAJSON
 NEW_LAST_MODIFIED=$(python last_modified.py $DATAJSON)
 
 if [[ $LAST_MODIFIED = $NEW_LAST_MODIFIED ]]; then
-    echo "Already have data current through $LAST_MODIFIED, exiting."
-    exit 1
+    success "Already have data current through $LAST_MODIFIED, no need to download."
+    exit 0
 fi
 
-echo "Downloading new data for $NEW_LAST_MODIFIED, backing up old data..."
+info "Downloading new data for $NEW_LAST_MODIFIED, backing up old data..."
 
 ### Set up output dirs
 
 mkdir -p logs
 mkdir -p output
 
-rm -rf output/real-bak
-rm -rf output/personal-bak
-
-mv output/real output/real-bak
-mv output/personal output/personal-bak
+mv output/real output/real_$LAST_MODIFIED
+mv output/personal output/personal_$LAST_MODIFIED
 
 
 ### Download datasets from Socrata
@@ -49,11 +55,11 @@ declare -a PERSONAL=(sv7x-dduq uqqa-hym2 nbbg-wtuz 6y3e-jcrc fuzi-5ks9)
 function download {
     mkdir -p logs/$1 && mkdir -p output/$1
     if [ -e output/$1/$2.csv.gz ]; then
-        echo "Already downloaded $1/$2, skipping..."
+        info "Already downloaded $1/$2, skipping..."
     elif [ -e output/$1/$2.csv ]; then
-        echo "Currently downloading $1/$2, skipping..."
+        info "Currently downloading $1/$2, skipping..."
     else
-        echo "Downloading $1/$2.csv ($3)"
+        info "Downloading $1/$2.csv ($3)"
         # Download via wget.
         #
         # Use sed to filter '10/30/1974' style dates to '1974-10-30 00:00:00'
@@ -94,7 +100,7 @@ download code states 5c9e-33xj
 download code country j2iz-mwzu # This is switched with `ucc_collateral` on Socrata
 
 # Wait for downloads to complete
-echo "Waiting for downloads to complete."
+info "Waiting for downloads to complete."
 wait
 
 # TODO: mappluto data should be handled in a separate script
@@ -160,5 +166,7 @@ wait
 
 echo $NEW_LAST_MODIFIED > output/last_modified
 
-echo Gzipping CSVs in output folder...
-gzip -9 output/**/*.csv
+info "Gzipping CSVs in output folder..."
+gzip -9 output/real/*.csv output/personal/*.csv
+
+success "Done downloading"
