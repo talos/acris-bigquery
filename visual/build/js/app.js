@@ -81,20 +81,35 @@ var DeepOwnershipQuery = React.createClass({
     /* jshint ignore:start */
     return $(React.renderComponentToStaticMarkup(
       <span>
-        SELECT
-          pl_XCoord AS x,
-          pl_YCoord AS y,
-          FIRST(doc_amount) AS doc_amount,
-          GROUP_CONCAT(party_type_string + ':' + name, "|") AS name_concat,
-          FORMAT_UTC_USEC(FIRST(doc_date)) AS time,
-          FIRST(pl_UnitsRes) AS res_units
-        FROM [acris-bigquery:acris.real_flat]
-        WHERE
-          doc_type = "DEED" AND
-        GROUP BY
-          x, y
-        HAVING
-          address_1 CONTAINS "{this.props.input.searchName}"
+        SELECT pl_XCoord AS x, pl_YCoord AS y,
+               borough AS borough,
+               block AS block,
+               lot AS lot,
+               street_name AS street_name,
+               street_number AS street_number,
+               FORMAT_UTC_USEC(rf.recorded_filed) AS recorded_filed,
+               rf.address_1 AS address_1,
+               rf.address_2 AS address_2,
+               rf.name name,
+               doc_amount as amount
+        FROM acris.real_flat rf CROSS JOIN
+        (SELECT address_1, address_2, name, recorded_filed
+        FROM acris.real_flat rf JOIN
+        (SELECT borough, block, lot from acris.real_legals
+        WHERE (street_name LIKE '{this.props.input.streetName}')
+          AND street_number = '{this.props.input.streetNumber}'
+          AND borough = {this.props.input.boroughNumber}
+        GROUP BY borough, block, lot) bbl
+        ON rf.borough=bbl.borough AND rf.block=bbl.block AND rf.lot= bbl.lot
+        WHERE doc_type IN ('DEED', 'DEEDO')
+          AND party_type = 2
+        ORDER BY recorded_filed DESC
+        LIMIT 1) addr
+        WHERE (addr.address_1 = rf.address_1
+           OR addr.address_2 = rf.address_2
+           OR addr.name = rf.name)
+          AND doc_type IN ('DEED', 'DEEDO')
+          AND party_type = 2
       </span>
     )).text();
     /* jshint ignore:end */
@@ -105,7 +120,9 @@ var DeepOwnershipQuery = React.createClass({
       //"startDate": this.refs.startDate.getDOMNode().value,
       //"endDate": this.refs.endDate.getDOMNode().value,
       //"searchName": this.refs.searchName.getDOMNode().value
-      "borough": this.refs.address.getDOMNode().value
+      "streetNumber": this.refs.streetNumber.getDOMNode().value,
+      "streetName": this.refs.streetName.getDOMNode().value,
+      "boroughNumber": this.refs.boroughNumber.getDOMNode().value
     });
   },
 
@@ -113,22 +130,20 @@ var DeepOwnershipQuery = React.createClass({
     /* jshint ignore:start */
     return (
       <div>
-        /*<label htmlFor="startDate">Start:</label>
-        <input name="startDate"
-               ref="startDate"
-               type="date"
-               value={this.props.input.startDate}
+        <label htmlFor="streetNumber">Number:</label>
+        <input name="streetNumber"
+               ref="streetNumber"
+               value={this.props.input.streetNumber}
                onChange={this.onInputChange} />
-        <label htmlFor="endDate">End:</label>
-        <input name="endDate"
-               ref="endDate"
-               type="date"
-               value={this.props.input.endDate}
-               onChange={this.onInputChange} />*/
-        <label htmlFor="searchName">Name:</label>
-        <input name="searchName"
-               ref="searchName"
-               value={this.props.input.searchName}
+        <label htmlFor="streetName">Street Name:</label>
+        <input name="streetName"
+               ref="streetName"
+               value={this.props.input.streetName}
+               onChange={this.onInputChange} />
+        <label htmlFor="boroughNumber">Borough Num</label>
+        <input name="boroughNumber"
+               ref="boroughNumber"
+               value={this.props.input.boroughNumber}
                onChange={this.onInputChange} />
      </div>
     );
@@ -293,10 +308,12 @@ var App = React.createClass({
       history: [],
       markers: [],
       input: {
+/*
         startDate: '2013-01-01',
         endDate: '2013-02-01',
         docType: 'MTGE',
         searchName: 'CITIBANK'
+*/
       }
     };
   },
@@ -458,9 +475,9 @@ var App = React.createClass({
                   </ul>
                 </li>
                 <li className="navbar-form">
-                  <DocumentQuery ref='query'
-                                 input={this.state.input}
-                                 onInputChange={this.onInputChange}
+                  <DeepOwnershipQuery ref='query'
+                                      input={this.state.input}
+                                      onInputChange={this.onInputChange}
                   />
                   <button type="submit"
                           className="btn btn-default"
