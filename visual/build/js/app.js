@@ -2,11 +2,85 @@
 * @jsx React.DOM
 */
 
-/*jshint browser: true, unused: false*/
+/*jshint browser: true, unused: false, maxstatements:40*/
 /*global React:false, L:false, gapi:false, proj4, $*/
 
 // HELPERS
 var reproject = proj4($('meta[name=pluto-proj4]').attr('content')).inverse;
+
+/**
+ * This generic function takes a list of functions, each of which should
+ * return a promise, calling them in sequence and extending data passed from
+ * one to the next.  A single failure aborts the sequence.
+ */
+var pipeline = function (functions, data, $dfd, idx) {
+  functions = functions || [];
+  data = data || {};
+  $dfd = $dfd || new $.Deferred();
+  idx = idx || 0;
+  var next = functions[idx],
+      $promise;
+  if (next) {
+
+    // Ensure that pipeline is passed a function.
+    if (!$.isFunction(next)) {
+      data.error = $.extend({}, data.error, {
+        "pipeline": "pipeline passed a non-function: '" + next + "'"
+      });
+      $dfd.reject(data);
+    }
+
+    $promise = next(data);
+
+    // Ensure that pipeline function returns a promise.
+    if (!$.isFunction($promise.fail) || !$.isFunction($promise.done)) {
+      data.error = $.extend({}, data.error, {
+        "pipeline": "pipeline passed a function that didn't return a promise"
+      });
+      $dfd.reject(data);
+    }
+
+    // Call the next pipeline function with updated data if the function
+    // succeeds.
+    $promise.done(function (results) {
+      data = $.extend({}, data, results);
+      pipeline(functions, data, $dfd, idx + 1);
+
+    // Abort the pipeline with last set of data if the function fails.
+    }).fail(function (results) {
+      data = $.extend({}, data, results);
+      data.error = $.extend({}, data.error, {
+        "pipeline": "pipeline aborted by failed function"
+      });
+      $dfd.reject(data);
+    });
+  } else {
+    $dfd.resolve(data);
+  }
+  return $dfd.promise();
+};
+
+var geoclient = function (endpoint) {
+  return function (data) {
+    var $dfd = new $.Deferred();
+    $.ajax({
+      url: '/geoclient/' + endpoint + '.json',
+      method: 'GET',
+      data: data
+    }).done(function (resp) {
+      var data = resp[endpoint];
+      if (data.message) {
+        $dfd.reject(data);
+      } else {
+        $dfd.resolve(data);
+      }
+    }).fail(function (jqXHR) {
+      $dfd.reject(JSON.parse(jqXHR.responseText));
+    });
+
+    return $dfd.promise();
+  };
+};
 
 // REACT CLASSES
 var DocumentQuery = React.createClass({
@@ -94,15 +168,12 @@ var DeepOwnershipQuery = React.createClass({
                doc_amount as amount
         FROM acris.real_flat rf CROSS JOIN
         (SELECT address_1, address_2, name, recorded_filed
-        FROM acris.real_flat rf JOIN
-        (SELECT borough, block, lot from acris.real_legals
-        WHERE (street_name LIKE '{this.props.input.streetName}')
-          AND street_number = '{this.props.input.streetNumber}'
-          AND borough = {this.props.input.boroughNumber}
-        GROUP BY borough, block, lot) bbl
-        ON rf.borough=bbl.borough AND rf.block=bbl.block AND rf.lot= bbl.lot
-        WHERE doc_type IN ('DEED', 'DEEDO')
-          AND party_type = 2
+        FROM acris.real_flat rf
+        WHERE rf.borough= {this.props.input.bblBoroughCode}
+           AND rf.block={this.props.input.bblTaxBlock}
+           AND rf.lot=  {this.props.input.bblTaxLot}
+           AND doc_type IN ('DEED', 'DEEDO')
+           AND party_type = 2
         ORDER BY recorded_filed DESC
         LIMIT 1) addr
         WHERE (addr.address_1 = rf.address_1
@@ -117,34 +188,38 @@ var DeepOwnershipQuery = React.createClass({
 
   onInputChange: function (evt) {
     this.props.onInputChange({
-      //"startDate": this.refs.startDate.getDOMNode().value,
-      //"endDate": this.refs.endDate.getDOMNode().value,
-      //"searchName": this.refs.searchName.getDOMNode().value
-      "streetNumber": this.refs.streetNumber.getDOMNode().value,
-      "streetName": this.refs.streetName.getDOMNode().value,
-      "boroughNumber": this.refs.boroughNumber.getDOMNode().value
+      "houseNumber": this.refs.houseNumber.getDOMNode().value,
+      "street": this.refs.street.getDOMNode().value,
+      "borough": this.refs.borough.getDOMNode().value
     });
   },
+
+  before: [geoclient('address')],
 
   render: function () {
     /* jshint ignore:start */
     return (
       <div>
-        <label htmlFor="streetNumber">Number:</label>
-        <input name="streetNumber"
-               ref="streetNumber"
-               value={this.props.input.streetNumber}
+        <input name="houseNumber"
+               ref="houseNumber"
+               placeholder="Number"
+               value={this.props.input.houseNumber}
                onChange={this.onInputChange} />
-        <label htmlFor="streetName">Street Name:</label>
-        <input name="streetName"
-               ref="streetName"
-               value={this.props.input.streetName}
+        <input name="street"
+               ref="street"
+               placeholder="Street"
+               value={this.props.input.street}
                onChange={this.onInputChange} />
-        <label htmlFor="boroughNumber">Borough Num</label>
-        <input name="boroughNumber"
-               ref="boroughNumber"
-               value={this.props.input.boroughNumber}
-               onChange={this.onInputChange} />
+        <select name="borough"
+                ref="borough"
+                value={this.props.input.borough}
+                onChange={this.onInputChange}>
+          <option value="" disabled default>Borough</option>
+          <option value="2">Bronx</option>
+          <option value="3">Brooklyn</option>
+          <option value="1">Manhattan</option>
+          <option value="4">Queens</option>
+        </select>
      </div>
     );
     /* jshint ignore:end */
@@ -338,14 +413,23 @@ var App = React.createClass({
       evt.preventDefault();
     }
     if (this.isAuthorized()) {
-      var request = gapi.client.bigquery.jobs.query({
-        'projectId': this.state.projectId,
-        'timeoutMs': '30000',
-        'query': this.refs.query.toSQL()
-      });
-      this.setState({'status': 'Querying'});
+      var query = this.refs.query,
+          self = this;
 
-      request.execute(this.handleQueryResponse);
+      pipeline(query.before, this.state.input).done(function (data) {
+        self.setState({'input': $.extend({}, self.state.input, data)});
+        var request = gapi.client.bigquery.jobs.query({
+          'projectId': self.state.projectId,
+          'timeoutMs': '30000',
+          'query': self.refs.query.toSQL()
+        });
+        self.setState({'status': 'Querying'});
+
+        request.execute(self.handleQueryResponse);
+      }).fail(function (resp) {
+        self.setState({status: 'Error'});
+        window.console.log(resp);
+      });
     } else {
       this.authorize(this.onSubmitQuery);
     }
@@ -391,7 +475,7 @@ var App = React.createClass({
       });
     } catch(err) {
       this.setState({ status: 'Error' });
-      console.log(response);
+      window.console.log(response);
       throw (err);
     }
   },
