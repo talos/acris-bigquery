@@ -8,6 +8,45 @@
 // HELPERS
 var reproject = proj4($('meta[name=pluto-proj4]').attr('content')).inverse;
 
+
+/**
+ * This function takes a raw address and splits it into houseNumber, street,
+ * and borough components.
+ *
+ * The additional args by default are undefined, and will be overriden even if
+ * set.
+ */
+var splitAddress = function (rawAddress, houseNumber, street, borough) {
+  var retObj = {};
+
+  // Assume anything after the first comma is a borough -- kill beyond
+  // second comma.  Also reduce rawAddress.
+  if (rawAddress.indexOf(',') !== -1) {
+    borough = rawAddress.slice(rawAddress.indexOf(',') + 1);
+    rawAddress = rawAddress.slice(0, rawAddress.indexOf(','));
+    if (borough.indexOf(',') !== -1) {
+      borough = borough.slice(0, borough.indexOf(','));
+    }
+    borough = borough.trim();
+  }
+
+  var splitAddress = rawAddress.split(/\s+/);
+  houseNumber = splitAddress.shift();
+  street = splitAddress.join(' ');
+
+  if (typeof houseNumber !== 'undefined' && houseNumber !== '') {
+    retObj.houseNumber = houseNumber;
+  }
+  if (typeof street !== 'undefined' && street !== '') {
+    retObj.street = street;
+  }
+  if (typeof borough !== 'undefined') {
+    retObj.borough = borough;
+  }
+
+  return retObj;
+};
+
 /**
  * This generic function takes a list of functions, each of which should
  * return a promise, calling them in sequence and extending data passed from
@@ -173,7 +212,6 @@ var DeepOwnershipQuery = React.createClass({
            AND rf.block={this.props.input.bblTaxBlock}
            AND rf.lot=  {this.props.input.bblTaxLot}
            AND doc_type IN ('DEED', 'DEEDO')
-           AND party_type = 2
         ORDER BY recorded_filed DESC
         LIMIT 1) addr
         WHERE (addr.address_1 = rf.address_1
@@ -186,12 +224,36 @@ var DeepOwnershipQuery = React.createClass({
     /* jshint ignore:end */
   },
 
-  onInputChange: function (evt) {
-    this.props.onInputChange({
-      "houseNumber": this.refs.houseNumber.getDOMNode().value,
-      "street": this.refs.street.getDOMNode().value,
-      "borough": this.refs.borough.getDOMNode().value
-    });
+  onAddressChange: function (evt) {
+    var rawAddress = this.refs.address.getDOMNode().value;
+    this.props.onInputChange(splitAddress(rawAddress));
+  },
+
+  address: function () {
+    var input = this.props.input;
+    var address = '';
+    var trailingChar = '';
+    if (this.refs.address) {
+      trailingChar = this.refs.address.getDOMNode().value.slice(-1);
+      if (trailingChar !== ' ' && trailingChar !== ',') {
+        trailingChar = '';
+      }
+    }
+    if (input.houseNumber !== undefined) {
+      address += input.houseNumber;
+    }
+    if (input.street !== undefined) {
+      address += address === '' ? '' : ' ';
+      address += input.street;
+    }
+    if (input.borough !== undefined) {
+      address += address === '' ? '' : ', ';
+      address += input.borough;
+    }
+    if (trailingChar !== '') {
+      address = address.trim() + trailingChar;
+    }
+    return address;
   },
 
   before: [geoclient('address')],
@@ -200,26 +262,11 @@ var DeepOwnershipQuery = React.createClass({
     /* jshint ignore:start */
     return (
       <div>
-        <input name="houseNumber"
-               ref="houseNumber"
-               placeholder="Number"
-               value={this.props.input.houseNumber}
-               onChange={this.onInputChange} />
-        <input name="street"
-               ref="street"
-               placeholder="Street"
-               value={this.props.input.street}
-               onChange={this.onInputChange} />
-        <select name="borough"
-                ref="borough"
-                value={this.props.input.borough}
-                onChange={this.onInputChange}>
-          <option value="" disabled default>Borough</option>
-          <option value="2">Bronx</option>
-          <option value="3">Brooklyn</option>
-          <option value="1">Manhattan</option>
-          <option value="4">Queens</option>
-        </select>
+        <input name="address"
+               ref="address"
+               placeholder="Address"
+               value={this.address()}
+               onChange={this.onAddressChange} />
      </div>
     );
     /* jshint ignore:end */
@@ -383,12 +430,6 @@ var App = React.createClass({
       history: [],
       markers: [],
       input: {
-/*
-        startDate: '2013-01-01',
-        endDate: '2013-02-01',
-        docType: 'MTGE',
-        searchName: 'CITIBANK'
-*/
       }
     };
   },
