@@ -209,8 +209,8 @@ var DeepOwnershipQuery = React.createClass({
         (SELECT address_1, address_2, name, recorded_filed
         FROM acris.real_flat rf
         WHERE rf.borough= {this.props.input.bblBoroughCode}
-           AND rf.block={this.props.input.bblTaxBlock}
-           AND rf.lot=  {this.props.input.bblTaxLot}
+           AND rf.block= {this.props.input.bblTaxBlock}
+           AND rf.lot=   {this.props.input.bblTaxLot}
            AND doc_type IN ('DEED', 'DEEDO')
         ORDER BY recorded_filed DESC
         LIMIT 1) addr
@@ -239,30 +239,47 @@ var DeepOwnershipQuery = React.createClass({
         trailingChar = '';
       }
     }
-    if (input.houseNumber !== undefined) {
+    if (typeof input.houseNumber !== 'undefined') {
       address += input.houseNumber;
     }
-    if (input.street !== undefined) {
+    if (typeof input.street !== 'undefined') {
       address += address === '' ? '' : ' ';
       address += input.street;
     }
-    if (input.borough !== undefined) {
-      address += address === '' ? '' : ', ';
-      address += input.borough;
+    if (typeof input.borough !== 'undefined') {
+      address += address === '' ? '' : ',';
+      if (input.borough !== '') {
+        address += ' ' + input.borough;
+      }
     }
     if (trailingChar !== '') {
-      address = address.trim() + trailingChar;
+      if (trailingChar !== ',' || input.borough !== '') {
+        address = address.trim() + trailingChar;
+      }
     }
     return address;
   },
 
   before: [geoclient('address')],
 
+  validate: function () {
+    var input = this.props.input;
+    if (!input.houseNumber) {
+      return "Missing house number.";
+    } else if (!input.street) {
+      return "Missing street name.";
+    } else if (!input.borough) {
+      return "Missing borough.";
+    }
+  },
+
   render: function () {
     /* jshint ignore:start */
     return (
-      <div>
+      <div className="hint--bottom"
+           data-hint={this.validate()}>
         <input name="address"
+               className="form-control"
                ref="address"
                placeholder="Address"
                value={this.address()}
@@ -546,6 +563,16 @@ var App = React.createClass({
   render: function () {
     var lastQuery = this.state.history[this.state.history.length - 1];
     var response = this.state.response;
+    var canSubmit = false;
+    if (this.refs.query) {
+      if (this.refs.query.validate) {
+        if (typeof validationMessage === 'undefined') {
+          canSubmit = true;
+        }
+      } else {
+        canSubmit = true;
+      }
+    }
     if (response && response.result) {
       var bytesProcessed = response.result.totalBytesProcessed;
       var expense = (parseFloat(bytesProcessed) * 5 / Math.pow(1024, 4))
@@ -599,18 +626,21 @@ var App = React.createClass({
                     </li>
                   </ul>
                 </li>
-                <li className="navbar-form">
+                <li className="navbar-form {canSubmit ? '' : 'has-error'}">
                   <DeepOwnershipQuery ref='query'
                                       input={this.state.input}
                                       onInputChange={this.onInputChange}
                   />
+                </li>
+                <li className="navbar-form">
                   <button type="submit"
-                          className="btn btn-default"
+                          className="btn btn-default form-control"
+                          disabled={!canSubmit}
                           //disabled={this.state.query === lastQuery}
                           >
                     {this.isAuthorized() ? "" : "Authorize and " }Query
                   </button>
-                </li>
+                  </li>
               </ul>
             </div>
             </form>
