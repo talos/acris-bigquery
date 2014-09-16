@@ -5,6 +5,7 @@ source utils/colors.sh
 ### Upload data to bigquery
 
 for schema in real personal code; do
+# for schema in code; do
     for path in $(ls output/$schema/*.csv.gz); do
         base=$(basename $path .csv.gz)
         output=acris.${schema}_${base}

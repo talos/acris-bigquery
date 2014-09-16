@@ -40,5 +40,5 @@ FROM acris.latest_personal_master m
   LEFT JOIN acris.code_document_control dc ON m.a_Doc_type=dc.Doc_type
   LEFT JOIN acris.code_ucc_collateral as ucc ON m.a_collateral=ucc.Ucc_collateral_code
   LEFT JOIN acris.code_property_types pt ON l.a_property_type=pt.property_type
-  LEFT JOIN EACH [acris-bigquery.acris.pluto] pl ON
+  LEFT JOIN EACH [acris-bigquery:acris.pluto] pl ON
     l.a_Borough = pl.BoroCode AND l.a_block = pl.Block AND l.a_lot = pl.LOT
