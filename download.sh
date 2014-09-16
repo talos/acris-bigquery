@@ -34,8 +34,10 @@ info "Downloading new data for $NEW_LAST_MODIFIED, backing up old data..."
 mkdir -p logs
 mkdir -p output
 
-mv output/real output/real_$LAST_MODIFIED
-mv output/personal output/personal_$LAST_MODIFIED
+if [[ -e output/real && -e output/personal ]]; then
+    mv output/real output/real_$LAST_MODIFIED
+    mv output/personal output/personal_$LAST_MODIFIED
+fi
 
 
 ### Download datasets from Socrata
