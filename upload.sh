@@ -18,7 +18,7 @@ for schema in real personal code; do
         # $path schemas/$schema/$base.json
 
         info bq --nosync load --skip_leading_rows 1 --replace $output  $path schemas/$schema/$base.json
-        bq --project personal-real-estate --nosync load --max_bad_records 1 --skip_leading_rows 1 --replace $output  $path schemas/$schema/$base.json
+        bq --nosync load --max_bad_records 1 --skip_leading_rows 1 --replace $output  $path schemas/$schema/$base.json
     done
 done
 
