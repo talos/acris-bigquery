@@ -19,6 +19,8 @@ DATAURL=https://nycopendata.socrata.com/data.json
 DATAJSON=tmp/data.json
 info "Determining whether data online is more recent than $LAST_MODIFIED from $DATAURL..."
 
+mkdir -p logs
+
 wget $DATAURL -o logs/data.json.log -O $DATAJSON
 NEW_LAST_MODIFIED=$(python last_modified.py $DATAJSON)
 
