@@ -171,6 +171,6 @@ wait
 echo $NEW_LAST_MODIFIED > output/last_modified
 
 info "Gzipping CSVs in output folder..."
-gzip -9 output/real/*.csv output/personal/*.csv output/code/*.csv
+gzip -9 output/real/*.csv output/personal/*.csv output/code/*.csv || true
 
 success "Done downloading"
