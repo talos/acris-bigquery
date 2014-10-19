@@ -19,6 +19,8 @@ DATAURL=https://nycopendata.socrata.com/data.json
 DATAJSON=tmp/data.json
 info "Determining whether data online is more recent than $LAST_MODIFIED from $DATAURL..."
 
+mkdir -p logs
+
 wget $DATAURL -o logs/data.json.log -O $DATAJSON
 NEW_LAST_MODIFIED=$(python last_modified.py $DATAJSON)
 
@@ -34,8 +36,10 @@ info "Downloading new data for $NEW_LAST_MODIFIED, backing up old data..."
 mkdir -p logs
 mkdir -p output
 
-mv output/real output/real_$LAST_MODIFIED
-mv output/personal output/personal_$LAST_MODIFIED
+if [[ -e output/real && -e output/personal ]]; then
+    mv output/real output/real_$LAST_MODIFIED
+    mv output/personal output/personal_$LAST_MODIFIED
+fi
 
 
 ### Download datasets from Socrata
@@ -167,6 +171,6 @@ wait
 echo $NEW_LAST_MODIFIED > output/last_modified
 
 info "Gzipping CSVs in output folder..."
-gzip -9 output/real/*.csv output/personal/*.csv
+gzip -9 output/real/*.csv output/personal/*.csv output/code/*.csv || true
 
 success "Done downloading"

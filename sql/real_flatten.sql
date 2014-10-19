@@ -39,7 +39,7 @@ FROM acris.latest_real_master m
   LEFT JOIN EACH acris.latest_real_legals l ON l.a_document_id=m.a_document_id
   LEFT JOIN EACH acris.latest_real_parties p ON m.a_document_id=p.a_document_id
   LEFT JOIN EACH acris.latest_real_references r ON m.a_document_id=r.a_document_id
-  LEFT JOIN EACH acris.pluto pl ON
+  LEFT JOIN EACH [acris-bigquery:acris.pluto] pl ON
     l.a_Borough = pl.BoroCode AND l.a_block = pl.Block AND l.a_lot = pl.LOT
   LEFT JOIN acris.code_document_control dc ON m.a_Doc_type=dc.Doc_type
   LEFT JOIN acris.code_property_types pt ON l.a_property_type=pt.property_type

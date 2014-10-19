@@ -5,6 +5,7 @@ source utils/colors.sh
 ### Upload data to bigquery
 
 for schema in real personal code; do
+# for schema in code; do
     for path in $(ls output/$schema/*.csv.gz); do
         base=$(basename $path .csv.gz)
         output=acris.${schema}_${base}
@@ -14,8 +15,11 @@ for schema in real personal code; do
         info "Uploading $path to $output..."
         #bq show $output > /dev/null && warn "Already uploaded $output" || \
 
-        bq --nosync load --skip_leading_rows 1 --replace $output \
-        $path schemas/$schema/$base.json
+        # bq --nosync load --skip_leading_rows 1 --replace $output \
+        # $path schemas/$schema/$base.json
+
+        info bq --nosync load --skip_leading_rows 1 --replace $output  $path schemas/$schema/$base.json
+        bq --nosync load --max_bad_records 1 --skip_leading_rows 1 --replace $output  $path schemas/$schema/$base.json
     done
 done
 

@@ -10,8 +10,8 @@ for schema in personal real; do
     stmt=$(cat sql/${schema}_flatten.sql)
 
     #bq show $table > /dev/null && warn "$table already exists" ||
-    bq --nosync query --allow_large_results --noappend_table --replace \
-             --destination_table ${table} "${stmt}"
+    info bq --nosync query --allow_large_results --noappend_table --replace --destination_table ${table} "${stmt}"
+    bq query --allow_large_results --noappend_table --replace --destination_table ${table} "${stmt}"
 done
 
 # Wait for flattening queries to complete
